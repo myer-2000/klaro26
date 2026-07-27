@@ -35,6 +35,32 @@ export const tools: ToolDef[] = [
       },
     },
   },
+  {
+    name: "parse_document",
+    description:
+      "Parse a document (PDF, Word, Excel, PowerPoint, image, email) into one clean JSON schema: title, sections, tables, text.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        url: { type: "string", description: "URL of the document to parse." },
+        content: { type: "string", description: "Or raw / base64 content." },
+        ocr: { type: "boolean", description: "Force OCR on scans and images." },
+      },
+    },
+  },
+  {
+    name: "to_markdown",
+    description:
+      "Convert any source (YouTube, Reddit, GitHub, Notion, Slack export, …) into clean Markdown plus metadata.",
+    inputSchema: {
+      type: "object",
+      required: ["url"],
+      properties: {
+        url: { type: "string", description: "The source URL to convert." },
+        embeddings: { type: "boolean", description: "Include embeddings." },
+      },
+    },
+  },
 ];
 
 export interface ToolResult {
@@ -51,6 +77,21 @@ export function createDispatcher(client: Klaro26) {
       switch (name) {
         case "video_knowledge": {
           const result = await client.video.run({
+            url: String(args.url),
+            embeddings: Boolean(args.embeddings),
+          });
+          return { isError: false, content: result };
+        }
+        case "parse_document": {
+          const result = await client.document.run({
+            url: args.url ? String(args.url) : undefined,
+            content: args.content ? String(args.content) : undefined,
+            ocr: Boolean(args.ocr),
+          });
+          return { isError: false, content: result };
+        }
+        case "to_markdown": {
+          const result = await client.markdown.run({
             url: String(args.url),
             embeddings: Boolean(args.embeddings),
           });

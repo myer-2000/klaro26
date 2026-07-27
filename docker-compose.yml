@@ -1,4 +1,4 @@
-# Runs the Video Knowledge API on its own. `docker compose up video`.
+# Run any service on its own, e.g. `docker compose up video`, or `up` for all.
 # Postgres + Redis are included but commented — the scaffold uses in-memory
 # adapters so it boots with zero external services. Uncomment to develop the
 # production Store / Queue adapters.
@@ -12,9 +12,26 @@ services:
     environment:
       - PORT=8080
       - KLARO26_API_KEYS=klaro26_dev_key
-    # depends_on:
-    #   - postgres
-    #   - redis
+
+  document:
+    build:
+      context: .
+      dockerfile: services/document/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - KLARO26_API_KEYS=klaro26_dev_key
+
+  markdown:
+    build:
+      context: .
+      dockerfile: services/markdown/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - KLARO26_API_KEYS=klaro26_dev_key
 
   # postgres:
   #   image: pgvector/pgvector:pg16

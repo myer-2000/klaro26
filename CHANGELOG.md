@@ -8,6 +8,8 @@ semantic versioning once it reaches 1.0.
 
 ### Added
 - Video Knowledge API (`POST /video`) — reference service.
+- Universal Document API (`POST /document`).
+- Everything → Markdown API (`POST /markdown`).
 - Shared core (`@klaro26/core`): response envelope, API-key auth, token-bucket
   rate limiting, pluggable Queue / Store interfaces.
 - TypeScript SDK (`@klaro26/sdk`) with `video.submit` / `video.get` / `video.run`.
@@ -17,5 +19,4 @@ semantic versioning once it reaches 1.0.
 - Examples, CI, and contribution docs.
 
 ### Planned
-- `POST /document`, `POST /markdown`, `POST /extract`, `POST /research`,
-  `GET /company`, `GET /person`, `POST /browse`.
+- `POST /extract`, `POST /research`, `GET /company`, `GET /person`, `POST /browse`.

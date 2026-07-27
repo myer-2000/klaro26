@@ -1,0 +1,14 @@
+{
+  "name": "@klaro26/markdown",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 Everything → Markdown API — any source in; clean Markdown plus metadata out.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/core": "file:../../packages/core"
+  }
+}

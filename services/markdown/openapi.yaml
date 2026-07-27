@@ -1,0 +1,67 @@
+openapi: 3.1.0
+info:
+  title: Klaro26 Everything → Markdown API
+  version: "2026.1"
+  license:
+    name: MIT
+  description: >
+    Any source (YouTube, Reddit, GitHub, Notion, Slack exports) to clean
+    Markdown plus metadata.
+servers:
+  - url: http://localhost:8082
+security:
+  - bearerAuth: []
+paths:
+  /markdown:
+    post:
+      summary: Submit a source URL to convert.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url: { type: string, format: uri }
+                embeddings: { type: boolean, default: false }
+      responses:
+        "202": { description: Job accepted. }
+        "401": { description: Unauthorized }
+        "429": { description: Rate limited }
+  /markdown/{id}:
+    get:
+      summary: Fetch job status and result.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Job state (and result when done). }
+        "404": { description: Not found }
+  /healthz:
+    get:
+      security: []
+      summary: Liveness probe.
+      responses:
+        "200": { description: OK }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    MarkdownResult:
+      type: object
+      properties:
+        markdown: { type: string }
+        metadata:
+          type: object
+          properties:
+            source: { type: string }
+            title: { type: string }
+            author: { type: string }
+        embeddings:
+          type: array
+          items: { type: array, items: { type: number } }

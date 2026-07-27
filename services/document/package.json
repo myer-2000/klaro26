@@ -1,0 +1,14 @@
+{
+  "name": "@klaro26/document",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 Universal Document API — PDF, Word, Excel, PowerPoint, images or email in; one JSON schema out.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/core": "file:../../packages/core"
+  }
+}

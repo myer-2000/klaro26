@@ -1,0 +1,19 @@
+### Health (no auth)
+GET http://localhost:8082/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8082/
+
+### Convert a source to Markdown
+POST http://localhost:8082/markdown
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "url": "https://youtube.com/watch?v=dQw4w9WgXcQ",
+  "embeddings": true
+}
+
+### Poll the job (paste the id from the POST response)
+GET http://localhost:8082/markdown/PASTE_JOB_ID
+Authorization: Bearer klaro26_dev_key

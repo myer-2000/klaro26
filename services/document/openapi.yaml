@@ -1,0 +1,79 @@
+openapi: 3.1.0
+info:
+  title: Klaro26 Universal Document API
+  version: "2026.1"
+  license:
+    name: MIT
+  description: >
+    PDF, Word, Excel, PowerPoint, images or email in; one consistent JSON
+    schema out.
+servers:
+  - url: http://localhost:8081
+security:
+  - bearerAuth: []
+paths:
+  /document:
+    post:
+      summary: Submit a document for parsing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url: { type: string, format: uri }
+                content: { type: string }
+                type:
+                  type: string
+                  enum: [pdf, docx, xlsx, pptx, image, email, auto]
+                ocr: { type: boolean, default: false }
+      responses:
+        "202": { description: Job accepted. }
+        "401": { description: Unauthorized }
+        "429": { description: Rate limited }
+  /document/{id}:
+    get:
+      summary: Fetch job status and result.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Job state (and result when done). }
+        "404": { description: Not found }
+  /healthz:
+    get:
+      security: []
+      summary: Liveness probe.
+      responses:
+        "200": { description: OK }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Document:
+      type: object
+      properties:
+        title: { type: string }
+        type: { type: string }
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              heading: { type: string }
+              text: { type: string }
+        tables:
+          type: array
+          items:
+            type: object
+            properties:
+              rows:
+                type: array
+                items: { type: array, items: { type: string } }
+        images: { type: array, items: { type: string } }
+        text: { type: string }

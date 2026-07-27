@@ -46,8 +46,8 @@ Open source, and available as a hosted service.
 | Endpoint | What it does | Status |
 | --- | --- | --- |
 | `POST /video` | Video URL → transcript, chapters, summaries, quotes, timestamps, embeddings | ✅ Available |
-| `POST /document` | PDF, Word, Excel, PowerPoint, images, email → one JSON schema | 🚧 Planned |
-| `POST /markdown` | YouTube, Reddit, GitHub, Notion, Slack exports → clean Markdown + metadata | 🚧 Planned |
+| `POST /document` | PDF, Word, Excel, PowerPoint, images, email → one JSON schema | ✅ Available |
+| `POST /markdown` | YouTube, Reddit, GitHub, Notion, Slack exports → clean Markdown + metadata | ✅ Available |
 | `POST /extract` | Any website → pricing, FAQ, products, contact, docs as typed JSON | 🚧 Planned |
 | `POST /research` | A question → papers, patents, news, companies, a cited timeline | 🚧 Planned |
 | `GET /company` | A name → funding, competitors, pricing, hiring, tech stack, brief | 🚧 Planned |
@@ -224,8 +224,8 @@ wire the routes on top of `@klaro26/core`. Copy `services/video` as the template
 
 - [x] Shared core (auth, rate limit, queue, store)
 - [x] Video Knowledge API + SDKs + MCP
-- [ ] `POST /document` — Universal Document
-- [ ] `POST /markdown` — Everything → Markdown
+- [x] `POST /document` — Universal Document
+- [x] `POST /markdown` — Everything → Markdown
 - [ ] `POST /extract` — Website Understanding
 - [ ] `POST /research` — Research
 - [ ] `GET /company` — Company Intelligence

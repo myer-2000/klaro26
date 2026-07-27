@@ -65,6 +65,37 @@ export interface VideoKnowledge {
   embeddings?: number[][];
 }
 
+/* ---- Universal Document types ---- */
+
+export interface DocumentRequest {
+  url?: string;
+  content?: string;
+  type?: "pdf" | "docx" | "xlsx" | "pptx" | "image" | "email" | "auto";
+  ocr?: boolean;
+}
+
+export interface DocumentResult {
+  title: string;
+  type: string;
+  sections: { heading: string; text: string }[];
+  tables: { rows: string[][] }[];
+  images: string[];
+  text: string;
+}
+
+/* ---- Everything → Markdown types ---- */
+
+export interface MarkdownRequest {
+  url: string;
+  embeddings?: boolean;
+}
+
+export interface MarkdownResult {
+  markdown: string;
+  metadata: { source: string; title?: string; author?: string; [k: string]: unknown };
+  embeddings?: number[][];
+}
+
 export type JobStatus = "queued" | "running" | "done" | "failed";
 
 export interface JobState<T> {
@@ -155,6 +186,54 @@ export class Klaro26 {
       }
     },
   };
+
+  /* ---- Universal Document ---- */
+
+  document = {
+    submit: (input: DocumentRequest): Promise<{ id: string; status: JobStatus }> =>
+      this.request("POST", "/document", input),
+    get: (id: string): Promise<JobState<DocumentResult>> =>
+      this.request("GET", `/document/${encodeURIComponent(id)}`),
+    run: async (input: DocumentRequest, opts: RunOptions = {}): Promise<DocumentResult> => {
+      const { id } = await this.document.submit(input);
+      return this.poll<DocumentResult>((jid) => this.document.get(jid), id, opts);
+    },
+  };
+
+  /* ---- Everything → Markdown ---- */
+
+  markdown = {
+    submit: (input: MarkdownRequest): Promise<{ id: string; status: JobStatus }> =>
+      this.request("POST", "/markdown", input),
+    get: (id: string): Promise<JobState<MarkdownResult>> =>
+      this.request("GET", `/markdown/${encodeURIComponent(id)}`),
+    run: async (input: MarkdownRequest, opts: RunOptions = {}): Promise<MarkdownResult> => {
+      const { id } = await this.markdown.submit(input);
+      return this.poll<MarkdownResult>((jid) => this.markdown.get(jid), id, opts);
+    },
+  };
+
+  /** Shared polling loop used by every job-based endpoint. */
+  private async poll<T>(
+    get: (id: string) => Promise<JobState<T>>,
+    id: string,
+    opts: RunOptions,
+  ): Promise<T> {
+    const { pollMs = 1000, timeoutMs = 300_000 } = opts;
+    const deadline = Date.now() + timeoutMs;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const state = await get(id);
+      if (state.status === "done" && state.result) return state.result;
+      if (state.status === "failed") {
+        throw new Klaro26Error("job_failed", state.error ?? "Job failed", 200);
+      }
+      if (Date.now() > deadline) {
+        throw new Klaro26Error("timeout", `Job ${id} timed out`, 200);
+      }
+      await sleep(pollMs);
+    }
+  }
 }
 
 export default Klaro26;

@@ -1,0 +1,18 @@
+### Health (no auth)
+GET http://localhost:8081/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8081/
+
+### Parse a document by URL
+POST http://localhost:8081/document
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "url": "https://example.com/report.pdf"
+}
+
+### Poll the job (paste the id from the POST response)
+GET http://localhost:8081/document/PASTE_JOB_ID
+Authorization: Bearer klaro26_dev_key
