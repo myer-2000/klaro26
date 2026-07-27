@@ -1,0 +1,14 @@
+{
+  "name": "@klaro26/video",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 Video Knowledge API — a video URL in; transcript, chapters, summaries, quotes, timestamps and embeddings out.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/core": "file:../../packages/core"
+  }
+}

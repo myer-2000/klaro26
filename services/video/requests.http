@@ -1,0 +1,19 @@
+### Health (no auth)
+GET http://localhost:8080/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8080/
+
+### Submit a video
+POST http://localhost:8080/video
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "embeddings": true
+}
+
+### Poll the job (paste the id from the POST response)
+GET http://localhost:8080/video/PASTE_JOB_ID
+Authorization: Bearer klaro26_dev_key
