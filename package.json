@@ -11,7 +11,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "dev:video": "tsx watch services/video/src/index.ts",
-    "start:video": "tsx services/video/src/index.ts"
+    "start:video": "tsx services/video/src/index.ts",
+    "example": "tsx examples/quickstart.ts"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

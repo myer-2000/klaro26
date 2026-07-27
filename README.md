@@ -112,6 +112,71 @@ See [`services/video`](./services/video) for the OpenAPI spec and `.http` exampl
 
 ---
 
+## SDKs
+
+Official clients wrap every endpoint and handle polling for async jobs, so you get
+one clean result back.
+
+### TypeScript / JavaScript
+
+```bash
+npm install @klaro26/sdk
+```
+
+```ts
+import { Klaro26 } from "@klaro26/sdk";
+
+const klaro = new Klaro26({ apiKey: "klaro26_dev_key" });
+
+// submit + poll until done → one clean schema
+const result = await klaro.video.run({
+  url: "https://youtube.com/watch?v=...",
+  embeddings: true,
+});
+console.log(result.summary);
+```
+
+### Python
+
+```bash
+pip install klaro26
+```
+
+```python
+from klaro26 import Klaro26
+
+klaro = Klaro26(api_key="klaro26_dev_key")
+result = klaro.video.run(url="https://youtube.com/watch?v=...", embeddings=True)
+print(result["summary"])
+```
+
+See [`packages/sdk`](./packages/sdk) and [`sdks/python`](./sdks/python). Runnable
+examples live in [`examples/`](./examples) (`npm run example`).
+
+---
+
+## Power your agent
+
+### MCP
+
+Connect any MCP-compatible client (Claude, Cursor, and others) to clean data in seconds:
+
+```json
+{
+  "mcpServers": {
+    "klaro26": {
+      "command": "npx",
+      "args": ["-y", "@klaro26/mcp"],
+      "env": { "KLARO26_API_KEY": "klaro26_dev_key" }
+    }
+  }
+}
+```
+
+Each endpoint becomes a tool your agent can call. See [`packages/mcp`](./packages/mcp).
+
+---
+
 ## How it works
 
 Every endpoint follows the same pipeline:
@@ -130,6 +195,53 @@ That spine lives once in [`@klaro26/core`](./packages/core) — a response envel
 auth, a token-bucket rate limiter, and pluggable Queue / Store interfaces. The scaffold
 ships with in-memory adapters so it runs with **zero external services**, then swaps to
 Redis / Postgres in production by dropping in an adapter — no service code changes.
+
+---
+
+## Repository layout
+
+```
+klaro26/
+├─ packages/
+│  ├─ core/          # shared spine: envelope, auth, rate limit, queue, store
+│  ├─ sdk/           # @klaro26/sdk — TypeScript / JavaScript client
+│  └─ mcp/           # @klaro26/mcp — Model Context Protocol tools
+├─ services/
+│  └─ video/         # Video Knowledge API (reference implementation)
+├─ sdks/
+│  └─ python/        # klaro26 — Python client
+├─ examples/         # runnable quickstarts (TS + Python)
+├─ docker-compose.yml
+└─ .github/          # CI + issue / PR templates
+```
+
+Adding a service means: define the output schema, implement the pipeline seams,
+wire the routes on top of `@klaro26/core`. Copy `services/video` as the template.
+
+---
+
+## Roadmap
+
+- [x] Shared core (auth, rate limit, queue, store)
+- [x] Video Knowledge API + SDKs + MCP
+- [ ] `POST /document` — Universal Document
+- [ ] `POST /markdown` — Everything → Markdown
+- [ ] `POST /extract` — Website Understanding
+- [ ] `POST /research` — Research
+- [ ] `GET /company` — Company Intelligence
+- [ ] `GET /person` — People
+- [ ] `POST /browse` — Browser
+- [ ] Redis queue + Postgres/pgvector store adapters
+
+---
+
+## Resources
+
+- [Contributing](./CONTRIBUTING.md)
+- [Changelog](./CHANGELOG.md)
+- [Security policy](./SECURITY.md)
+- [Code of conduct](./CODE_OF_CONDUCT.md)
+- Per-service docs under [`services/`](./services)
 
 ---
 

@@ -1,0 +1,13 @@
+{
+  "name": "@klaro26/mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Model Context Protocol tools for Klaro26 — give any MCP client clean data.",
+  "bin": {
+    "klaro26-mcp": "src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/sdk": "file:../sdk"
+  }
+}
