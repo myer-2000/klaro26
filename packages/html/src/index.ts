@@ -220,6 +220,39 @@ export function extractLinks(html: string, baseUrl?: string): Link[] {
   return out;
 }
 
+export interface Table {
+  rows: string[][];
+}
+
+/** Parse every <table> into rows of cell text. */
+export function extractTables(html: string): Table[] {
+  const tables: Table[] = [];
+  for (const t of html.matchAll(/<table\b[^>]*>([\s\S]*?)<\/table>/gi)) {
+    const rows: string[][] = [];
+    for (const r of t[1].matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
+      const cells = [...r[1].matchAll(/<(?:td|th)\b[^>]*>([\s\S]*?)<\/(?:td|th)>/gi)].map((c) =>
+        stripTags(c[1]),
+      );
+      if (cells.length) rows.push(cells);
+    }
+    if (rows.length) tables.push({ rows });
+  }
+  return tables;
+}
+
+/** Collect image sources in document order. */
+export function extractImages(html: string): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const m of html.matchAll(/<img\b[^>]*?src=["']([^"']+)["']/gi)) {
+    if (!seen.has(m[1])) {
+      seen.add(m[1]);
+      out.push(m[1]);
+    }
+  }
+  return out;
+}
+
 /* ------------------------------------------------------------------ *
  * Understanding
  * ------------------------------------------------------------------ */

@@ -9,6 +9,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@klaro26/core": "file:../../packages/core"
+    "@klaro26/core": "file:../../packages/core",
+    "@klaro26/html": "file:../../packages/html"
   }
 }
