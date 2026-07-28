@@ -1,12 +1,13 @@
 /**
  * The Video Knowledge pipeline:
  *
- *   URL → download audio → transcribe → align → summarise → embed → JSON
+ *   URL → parse source (real) → download → transcribe → summarise → JSON
  *
- * Each stage below is a clearly marked seam. The scaffold ships with
- * deterministic stubs so the service runs end-to-end with no models or
- * binaries installed. Wire the real implementations behind the same
- * function signatures and the rest of the service is unchanged.
+ * Source parsing is real and deterministic: provider, video id, canonical
+ * thumbnail and embed URLs come straight from the URL, no network needed.
+ * Transcription/chaptering/summarising are the seam — they require an ASR or
+ * caption provider (Whisper, Deepgram, the platform's caption API). Wire those
+ * behind `transcribe()` and the rest of the service is unchanged.
  */
 
 import type {
@@ -14,86 +15,87 @@ import type {
   TranscriptSegment,
   VideoKnowledge,
   VideoRequest,
+  VideoSource,
 } from "./schema.js";
 
-/* 1) Download audio ------------------------------------------------- *
- * Prod: yt-dlp / a licensed provider → ffmpeg to 16kHz mono wav.
- * Respect each source's Terms of Service before enabling downloads. */
-async function downloadAudio(url: string): Promise<{ path: string; durationSec: number }> {
-  // TODO: spawn yt-dlp + ffmpeg; return a temp wav path.
-  return { path: `/tmp/${encodeURIComponent(url)}.wav`, durationSec: 600 };
+/* 1) Parse source — REAL, deterministic --------------------------------- */
+export function parseVideoSource(raw: string): VideoSource {
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    return { provider: "unknown", videoId: null, thumbnail: null, embedUrl: null };
+  }
+  const host = u.hostname.replace(/^www\./, "");
+
+  if (host === "youtu.be" || host.endsWith("youtube.com")) {
+    let id: string | null = null;
+    if (host === "youtu.be") id = u.pathname.slice(1).split("/")[0] || null;
+    else if (u.searchParams.get("v")) id = u.searchParams.get("v");
+    else {
+      const m = /\/(?:embed|shorts|live|v)\/([^/?]+)/.exec(u.pathname);
+      if (m) id = m[1];
+    }
+    return id
+      ? {
+          provider: "youtube",
+          videoId: id,
+          thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+          embedUrl: `https://www.youtube.com/embed/${id}`,
+        }
+      : { provider: "youtube", videoId: null, thumbnail: null, embedUrl: null };
+  }
+
+  if (host.endsWith("vimeo.com")) {
+    const m = /\/(\d+)/.exec(u.pathname);
+    const id = m ? m[1] : null;
+    return {
+      provider: "vimeo",
+      videoId: id,
+      thumbnail: null,
+      embedUrl: id ? `https://player.vimeo.com/video/${id}` : null,
+    };
+  }
+
+  return { provider: host || "unknown", videoId: null, thumbnail: null, embedUrl: null };
 }
 
-/* 2) Transcribe ----------------------------------------------------- *
- * Prod: faster-whisper (local GPU) or Deepgram / OpenAI transcription. */
-async function transcribe(_audioPath: string): Promise<{
+/* 2) Transcribe — SEAM (needs ASR / caption provider) ------------------- */
+async function transcribe(_url: string): Promise<{
   language: string;
+  durationSec: number;
   segments: TranscriptSegment[];
 }> {
-  // TODO: call Whisper; return word/segment timestamps.
-  return {
-    language: "en",
-    segments: [
-      { t: 0, text: "[stub] Intro and overview of the topic." },
-      { t: 45, text: "[stub] Main argument with a concrete example." },
-      { t: 210, text: "[stub] Counterpoints and caveats." },
-      { t: 500, text: "[stub] Summary and closing thoughts." },
-    ],
-  };
+  // TODO: yt-dlp/ffmpeg → Whisper/Deepgram, or the platform caption API.
+  return { language: "unknown", durationSec: 0, segments: [] };
 }
 
-/* 3) Chapterise ----------------------------------------------------- *
- * Prod: LLM over the timestamped transcript to segment into chapters. */
+/* 3) Chapterise / 4) Summarise — SEAM (need the transcript + an LLM) ----- */
 async function chapterise(segments: TranscriptSegment[]): Promise<Chapter[]> {
-  // TODO: LLM call. Stub: one chapter per segment boundary.
-  return segments.map((s, i) => ({
-    start: s.t,
-    title: i === 0 ? "Introduction" : `Section ${i + 1}`,
-  }));
-}
-
-/* 4) Summarise + extract ------------------------------------------- *
- * Prod: LLM for a summary, key quotes and named entities. */
-async function summarise(segments: TranscriptSegment[]): Promise<{
-  summary: string;
-  quotes: string[];
-  entities: string[];
-}> {
-  // TODO: LLM call over the full transcript.
-  const joined = segments.map((s) => s.text).join(" ");
-  return {
-    summary: `[stub] ${joined.slice(0, 160)}`,
-    quotes: ["[stub] A representative key quote from the video."],
-    entities: ["[stub-entity]"],
-  };
-}
-
-/* 5) Embed ---------------------------------------------------------- *
- * Prod: an embedding model per chunk, stored in pgvector for RAG. */
-async function embed(segments: TranscriptSegment[]): Promise<number[][]> {
-  // TODO: real embeddings. Stub: tiny deterministic vectors.
-  return segments.map((s, i) => [i, s.t, s.text.length]);
+  return segments.length ? segments.map((s, i) => ({ start: s.t, title: `Section ${i + 1}` })) : [];
 }
 
 export async function processVideo(req: VideoRequest): Promise<VideoKnowledge> {
-  const { path, durationSec } = await downloadAudio(req.url);
-  const { language, segments } = await transcribe(path);
-  const [chapters, extracted] = await Promise.all([
-    chapterise(segments),
-    summarise(segments),
-  ]);
+  const source = parseVideoSource(req.url);
+  const { language, durationSec, segments } = await transcribe(req.url);
+  const chapters = await chapterise(segments);
+
+  const recognized = source.videoId
+    ? `Recognized ${source.provider} video ${source.videoId}. Transcript, chapters and summary require an ASR or caption provider (wire it behind transcribe()).`
+    : `Could not recognize a video id from the URL. Source parsed as provider "${source.provider}".`;
 
   const result: VideoKnowledge = {
     url: req.url,
+    source,
     durationSec,
     language,
     transcript: segments,
     chapters,
-    summary: extracted.summary,
-    quotes: extracted.quotes,
-    entities: extracted.entities,
+    summary: recognized,
+    quotes: [],
+    entities: [],
   };
 
-  if (req.embeddings) result.embeddings = await embed(segments);
+  if (req.embeddings) result.embeddings = [];
   return result;
 }

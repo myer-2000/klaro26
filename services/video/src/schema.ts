@@ -19,8 +19,17 @@ export interface Chapter {
   title: string;
 }
 
+/** Deterministic facts parsed straight from the URL — no download needed. */
+export interface VideoSource {
+  provider: string;
+  videoId: string | null;
+  thumbnail: string | null;
+  embedUrl: string | null;
+}
+
 export interface VideoKnowledge {
   url: string;
+  source: VideoSource;
   durationSec: number;
   language: string;
   transcript: TranscriptSegment[];
