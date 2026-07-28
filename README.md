@@ -254,6 +254,7 @@ wire the routes on top of `@klaro26/core`. Copy `services/video` as the template
 ## Resources
 
 - [Contributing](./CONTRIBUTING.md)
+- [Releasing](./RELEASING.md)
 - [Changelog](./CHANGELOG.md)
 - [Security policy](./SECURITY.md)
 - [Code of conduct](./CODE_OF_CONDUCT.md)

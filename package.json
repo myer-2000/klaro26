@@ -22,7 +22,10 @@
     "start:memory": "tsx services/memory/src/index.ts",
     "start:index": "tsx services/index/src/index.ts",
     "start:registry": "tsx services/registry/src/index.ts",
-    "example": "tsx examples/quickstart.ts"
+    "example": "tsx examples/quickstart.ts",
+    "build:sdk": "npm -w @klaro26/sdk run build",
+    "release:sdk": "npm -w @klaro26/sdk run build && npm -w @klaro26/sdk publish --access public",
+    "release:python": "cd sdks/python && rm -rf dist && python -m build && twine upload dist/*"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

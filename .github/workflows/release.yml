@@ -1,0 +1,48 @@
+name: Release
+
+# Publishes the SDKs when you push a version tag, e.g. `git tag v0.2.0 && git push --tags`.
+# Also runnable manually from the Actions tab (workflow_dispatch).
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  npm:
+    name: Publish @klaro26/sdk to npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm provenance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run build -w @klaro26/sdk
+      # --provenance publishes a verifiable link back to this repo/commit.
+      # Drop it if you'd rather not, or if the org isn't provenance-enabled.
+      - run: npm publish --access public --provenance
+        working-directory: packages/sdk
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  pypi:
+    name: Publish klaro26 to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # required for PyPI Trusted Publishing (no token needed)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install build
+      - run: python -m build
+        working-directory: sdks/python
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: sdks/python/dist/
