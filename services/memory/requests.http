@@ -1,0 +1,45 @@
+### Health + stats (no auth)
+GET http://localhost:8088/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8088/
+
+### Remember a fact
+POST http://localhost:8088/memory
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "text": "The user prefers dark mode and terse replies.",
+  "namespace": "user-42",
+  "metadata": { "source": "onboarding" }
+}
+
+### Remember another
+POST http://localhost:8088/memory
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "text": "The user is building an open-source API company called Klaro26.",
+  "namespace": "user-42"
+}
+
+### Recall by meaning
+POST http://localhost:8088/memory/recall
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "query": "what is the user working on?",
+  "namespace": "user-42",
+  "k": 3
+}
+
+### Fetch one memory (paste an id)
+GET http://localhost:8088/memory/PASTE_ID
+Authorization: Bearer klaro26_dev_key
+
+### Forget one memory (paste an id)
+DELETE http://localhost:8088/memory/PASTE_ID
+Authorization: Bearer klaro26_dev_key

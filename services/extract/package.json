@@ -1,0 +1,14 @@
+{
+  "name": "@klaro26/extract",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 Website Understanding API — any URL in; pricing, FAQ, products, contact and docs as typed JSON out.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/core": "file:../../packages/core"
+  }
+}

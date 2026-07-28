@@ -1,0 +1,19 @@
+### Health (no auth)
+GET http://localhost:8084/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8084/
+
+### Run a research query
+POST http://localhost:8084/research
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "query": "latest battery technologies",
+  "depth": "standard"
+}
+
+### Poll the job (paste the id from the POST response)
+GET http://localhost:8084/research/PASTE_JOB_ID
+Authorization: Bearer klaro26_dev_key

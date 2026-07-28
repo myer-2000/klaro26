@@ -1,0 +1,14 @@
+{
+  "name": "@klaro26/memory",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 Agent Memory API — a self-hostable, open memory layer for AI agents: write facts, recall by meaning.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/core": "file:../../packages/core"
+  }
+}

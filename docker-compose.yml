@@ -33,6 +33,66 @@ services:
       - PORT=8082
       - KLARO26_API_KEYS=klaro26_dev_key
 
+  extract:
+    build:
+      context: .
+      dockerfile: services/extract/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - PORT=8083
+      - KLARO26_API_KEYS=klaro26_dev_key
+
+  research:
+    build:
+      context: .
+      dockerfile: services/research/Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - PORT=8084
+      - KLARO26_API_KEYS=klaro26_dev_key
+
+  company:
+    build:
+      context: .
+      dockerfile: services/company/Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      - PORT=8085
+      - KLARO26_API_KEYS=klaro26_dev_key
+
+  person:
+    build:
+      context: .
+      dockerfile: services/person/Dockerfile
+    ports:
+      - "8086:8086"
+    environment:
+      - PORT=8086
+      - KLARO26_API_KEYS=klaro26_dev_key
+
+  browse:
+    build:
+      context: .
+      dockerfile: services/browse/Dockerfile
+    ports:
+      - "8087:8087"
+    environment:
+      - PORT=8087
+      - KLARO26_API_KEYS=klaro26_dev_key
+
+  memory:
+    build:
+      context: .
+      dockerfile: services/memory/Dockerfile
+    ports:
+      - "8088:8088"
+    environment:
+      - PORT=8088
+      - KLARO26_API_KEYS=klaro26_dev_key
+
   # postgres:
   #   image: pgvector/pgvector:pg16
   #   environment:

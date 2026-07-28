@@ -96,6 +96,125 @@ export interface MarkdownResult {
   embeddings?: number[][];
 }
 
+/* ---- Website Understanding types ---- */
+
+export interface ExtractRequest {
+  url: string;
+  fields?: string[];
+}
+
+export interface WebsiteUnderstanding {
+  url: string;
+  title: string;
+  summary: string;
+  pricing: { plan: string; price: number | string; period?: string; features?: string[] }[];
+  products: { name: string; price?: number | string; url?: string }[];
+  faq: { q: string; a: string }[];
+  contact: { email?: string; phone?: string; address?: string };
+  docs: string[];
+}
+
+/* ---- Research types ---- */
+
+export interface ResearchRequest {
+  query: string;
+  depth?: "quick" | "standard" | "deep";
+}
+
+export interface ResearchResult {
+  query: string;
+  depth: "quick" | "standard" | "deep";
+  summary: string;
+  papers: { title: string; authors?: string[]; year: number; url?: string }[];
+  patents: { id: string; title?: string; assignee: string; year?: number }[];
+  news: { title: string; source?: string; date?: string; url?: string }[];
+  companies: string[];
+  timeline: { date: string; event: string }[];
+  citations: number;
+}
+
+/* ---- Company Intelligence types ---- */
+
+export interface CompanyRequest {
+  name: string;
+  sections?: string[];
+}
+
+export interface CompanyIntel {
+  name: string;
+  domain?: string;
+  summary: string;
+  funding: { round: string; amount: string; date?: string; investors?: string[] }[];
+  competitors: string[];
+  products: string[];
+  pricing: { plan: string; price: string }[];
+  hiring: string[];
+  techStack: string[];
+}
+
+/* ---- People types ---- */
+
+export interface PersonRequest {
+  name: string;
+  hint?: string;
+}
+
+export interface PersonProfile {
+  name: string;
+  bio: string;
+  skills: string[];
+  companies: string[];
+  projects: string[];
+  socials: Record<string, string>;
+  confidence: number;
+}
+
+/* ---- Browser types ---- */
+
+export interface BrowseRequest {
+  task: string;
+  return?: "structured" | "markdown" | "screenshots";
+  timeout?: number;
+}
+
+export interface BrowseResult {
+  task: string;
+  return: "structured" | "markdown" | "screenshots";
+  result: unknown;
+  steps: string[];
+  sources: string[];
+  screenshots?: string[];
+}
+
+/* ---- Agent Memory types ---- */
+
+export interface RememberRequest {
+  text: string;
+  namespace?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface RecallRequest {
+  query: string;
+  namespace?: string;
+  k?: number;
+}
+
+export interface MemoryRecord {
+  id: string;
+  namespace: string;
+  text: string;
+  metadata: Record<string, unknown>;
+  createdAt: number;
+}
+
+export interface RecallMatch {
+  id: string;
+  text: string;
+  metadata: Record<string, unknown>;
+  score: number;
+}
+
 export type JobStatus = "queued" | "running" | "done" | "failed";
 
 export interface JobState<T> {
@@ -211,6 +330,78 @@ export class Klaro26 {
       const { id } = await this.markdown.submit(input);
       return this.poll<MarkdownResult>((jid) => this.markdown.get(jid), id, opts);
     },
+  };
+
+  /* ---- Website Understanding ---- */
+
+  extract = {
+    submit: (input: ExtractRequest): Promise<{ id: string; status: JobStatus }> =>
+      this.request("POST", "/extract", input),
+    get: (id: string): Promise<JobState<WebsiteUnderstanding>> =>
+      this.request("GET", `/extract/${encodeURIComponent(id)}`),
+    run: async (input: ExtractRequest, opts: RunOptions = {}): Promise<WebsiteUnderstanding> => {
+      const { id } = await this.extract.submit(input);
+      return this.poll<WebsiteUnderstanding>((jid) => this.extract.get(jid), id, opts);
+    },
+  };
+
+  /* ---- Research ---- */
+
+  research = {
+    submit: (input: ResearchRequest): Promise<{ id: string; status: JobStatus }> =>
+      this.request("POST", "/research", input),
+    get: (id: string): Promise<JobState<ResearchResult>> =>
+      this.request("GET", `/research/${encodeURIComponent(id)}`),
+    run: async (input: ResearchRequest, opts: RunOptions = {}): Promise<ResearchResult> => {
+      const { id } = await this.research.submit(input);
+      return this.poll<ResearchResult>((jid) => this.research.get(jid), id, opts);
+    },
+  };
+
+  /* ---- Browser ---- */
+
+  browse = {
+    submit: (input: BrowseRequest): Promise<{ id: string; status: JobStatus }> =>
+      this.request("POST", "/browse", input),
+    get: (id: string): Promise<JobState<BrowseResult>> =>
+      this.request("GET", `/browse/${encodeURIComponent(id)}`),
+    run: async (input: BrowseRequest, opts: RunOptions = {}): Promise<BrowseResult> => {
+      const { id } = await this.browse.submit(input);
+      return this.poll<BrowseResult>((jid) => this.browse.get(jid), id, opts);
+    },
+  };
+
+  /* ---- Company Intelligence (synchronous GET) ---- */
+
+  company = {
+    lookup: (input: CompanyRequest): Promise<CompanyIntel> => {
+      const q = new URLSearchParams({ name: input.name });
+      if (input.sections?.length) q.set("sections", input.sections.join(","));
+      return this.request("GET", `/company?${q.toString()}`);
+    },
+  };
+
+  /* ---- People (synchronous GET) ---- */
+
+  person = {
+    resolve: (input: PersonRequest): Promise<PersonProfile> => {
+      const q = new URLSearchParams({ name: input.name });
+      if (input.hint) q.set("hint", input.hint);
+      return this.request("GET", `/person?${q.toString()}`);
+    },
+  };
+
+  /* ---- Agent Memory (synchronous) ---- */
+
+  memory = {
+    remember: (input: RememberRequest): Promise<{ id: string; createdAt: number }> =>
+      this.request("POST", "/memory", input),
+    recall: (input: RecallRequest): Promise<{ matches: RecallMatch[] }> =>
+      this.request("POST", "/memory/recall", input),
+    get: (id: string): Promise<MemoryRecord> =>
+      this.request("GET", `/memory/${encodeURIComponent(id)}`),
+    forget: (id: string): Promise<{ id: string; forgotten: boolean }> =>
+      this.request("DELETE", `/memory/${encodeURIComponent(id)}`),
   };
 
   /** Shared polling loop used by every job-based endpoint. */

@@ -1,0 +1,13 @@
+### Health (no auth)
+GET http://localhost:8085/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8085/
+
+### Look up a company
+GET http://localhost:8085/company?name=OpenAI
+Authorization: Bearer klaro26_dev_key
+
+### Only specific sections
+GET http://localhost:8085/company?name=OpenAI&sections=funding,pricing
+Authorization: Bearer klaro26_dev_key

@@ -1,0 +1,91 @@
+openapi: 3.1.0
+info:
+  title: Klaro26 Agent Memory API
+  version: "2026.1"
+  license:
+    name: MIT
+  description: >
+    A self-hostable, open memory layer for AI agents. Write facts, recall
+    them by meaning. Ships with a dependency-free embedding + linear cosine
+    recall; swap in pgvector and a real embedding model for scale.
+servers:
+  - url: http://localhost:8088
+paths:
+  /memory:
+    post:
+      summary: Remember a piece of text.
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+                namespace:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        "201":
+          description: Memory stored.
+  /memory/recall:
+    post:
+      summary: Recall memories by meaning.
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query:
+                  type: string
+                namespace:
+                  type: string
+                k:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+      responses:
+        "200":
+          description: Ranked matches.
+  /memory/{id}:
+    get:
+      summary: Fetch one memory.
+      security:
+        - bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The memory record.
+    delete:
+      summary: Forget one memory.
+      security:
+        - bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Forgotten.
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,19 @@
+### Health (no auth)
+GET http://localhost:8087/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8087/
+
+### Give an agent a browser task
+POST http://localhost:8087/browse
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "task": "Find the cheapest flight to Tokyo next month",
+  "return": "structured"
+}
+
+### Poll the job (paste the id from the POST response)
+GET http://localhost:8087/browse/PASTE_JOB_ID
+Authorization: Bearer klaro26_dev_key

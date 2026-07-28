@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Klaro26 Website Understanding API
+  version: "2026.1"
+  license:
+    name: MIT
+  description: >
+    Any website in — pricing, FAQ, products, contact and docs as clean,
+    typed JSON out.
+servers:
+  - url: http://localhost:8083
+paths:
+  /extract:
+    post:
+      summary: Understand a website into typed JSON.
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                fields:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "202":
+          description: Job accepted.
+  /extract/{id}:
+    get:
+      summary: Fetch job status and result.
+      security:
+        - bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job state.
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

@@ -14,6 +14,12 @@
     "start:video": "tsx services/video/src/index.ts",
     "start:document": "tsx services/document/src/index.ts",
     "start:markdown": "tsx services/markdown/src/index.ts",
+    "start:extract": "tsx services/extract/src/index.ts",
+    "start:research": "tsx services/research/src/index.ts",
+    "start:company": "tsx services/company/src/index.ts",
+    "start:person": "tsx services/person/src/index.ts",
+    "start:browse": "tsx services/browse/src/index.ts",
+    "start:memory": "tsx services/memory/src/index.ts",
     "example": "tsx examples/quickstart.ts"
   },
   "devDependencies": {

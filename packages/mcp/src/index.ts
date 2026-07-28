@@ -61,6 +61,115 @@ export const tools: ToolDef[] = [
       },
     },
   },
+  {
+    name: "understand_website",
+    description:
+      "Understand any website into typed JSON: pricing, products, FAQ, contact and docs.",
+    inputSchema: {
+      type: "object",
+      required: ["url"],
+      properties: {
+        url: { type: "string", description: "The website to understand." },
+        fields: {
+          type: "array",
+          items: { type: "string" },
+          description: "Restrict extraction to specific sections.",
+        },
+      },
+    },
+  },
+  {
+    name: "research",
+    description:
+      "Run a research query and get papers, patents, news, companies and a cited timeline back.",
+    inputSchema: {
+      type: "object",
+      required: ["query"],
+      properties: {
+        query: { type: "string", description: "The research question." },
+        depth: {
+          type: "string",
+          enum: ["quick", "standard", "deep"],
+          description: "Trade latency for source coverage.",
+        },
+      },
+    },
+  },
+  {
+    name: "company_intel",
+    description:
+      "Look up a company: funding, competitors, pricing, hiring, tech stack and a synthesized brief.",
+    inputSchema: {
+      type: "object",
+      required: ["name"],
+      properties: {
+        name: { type: "string", description: "Company name or domain." },
+        sections: {
+          type: "array",
+          items: { type: "string" },
+          description: "Limit to specific sections.",
+        },
+      },
+    },
+  },
+  {
+    name: "resolve_person",
+    description:
+      "Resolve a person across the public web into one structured profile: bio, skills, companies, socials.",
+    inputSchema: {
+      type: "object",
+      required: ["name"],
+      properties: {
+        name: { type: "string", description: "Full name to resolve." },
+        hint: { type: "string", description: "A company, handle or URL to disambiguate." },
+      },
+    },
+  },
+  {
+    name: "browse",
+    description:
+      "Give an agent a browser task in plain language; get structured results back, not screenshots.",
+    inputSchema: {
+      type: "object",
+      required: ["task"],
+      properties: {
+        task: { type: "string", description: "What to accomplish, in natural language." },
+        return: {
+          type: "string",
+          enum: ["structured", "markdown", "screenshots"],
+          description: "Output shape. Defaults to structured.",
+        },
+      },
+    },
+  },
+  {
+    name: "remember",
+    description:
+      "Store a fact in the agent's memory so it can be recalled later by meaning.",
+    inputSchema: {
+      type: "object",
+      required: ["text"],
+      properties: {
+        text: { type: "string", description: "The text to remember." },
+        namespace: { type: "string", description: "Partition (per-agent or per-user)." },
+        metadata: { type: "object", description: "Arbitrary structured metadata." },
+      },
+    },
+  },
+  {
+    name: "recall",
+    description:
+      "Recall the most relevant memories for a query from the agent's memory.",
+    inputSchema: {
+      type: "object",
+      required: ["query"],
+      properties: {
+        query: { type: "string", description: "What to search for." },
+        namespace: { type: "string", description: "Namespace to search within." },
+        k: { type: "number", description: "How many memories to return." },
+      },
+    },
+  },
 ];
 
 export interface ToolResult {
@@ -94,6 +203,60 @@ export function createDispatcher(client: Klaro26) {
           const result = await client.markdown.run({
             url: String(args.url),
             embeddings: Boolean(args.embeddings),
+          });
+          return { isError: false, content: result };
+        }
+        case "understand_website": {
+          const result = await client.extract.run({
+            url: String(args.url),
+            fields: Array.isArray(args.fields) ? (args.fields as string[]) : undefined,
+          });
+          return { isError: false, content: result };
+        }
+        case "research": {
+          const result = await client.research.run({
+            query: String(args.query),
+            depth: args.depth as "quick" | "standard" | "deep" | undefined,
+          });
+          return { isError: false, content: result };
+        }
+        case "company_intel": {
+          const result = await client.company.lookup({
+            name: String(args.name),
+            sections: Array.isArray(args.sections) ? (args.sections as string[]) : undefined,
+          });
+          return { isError: false, content: result };
+        }
+        case "resolve_person": {
+          const result = await client.person.resolve({
+            name: String(args.name),
+            hint: args.hint ? String(args.hint) : undefined,
+          });
+          return { isError: false, content: result };
+        }
+        case "browse": {
+          const result = await client.browse.run({
+            task: String(args.task),
+            return: args.return as "structured" | "markdown" | "screenshots" | undefined,
+          });
+          return { isError: false, content: result };
+        }
+        case "remember": {
+          const result = await client.memory.remember({
+            text: String(args.text),
+            namespace: args.namespace ? String(args.namespace) : undefined,
+            metadata:
+              args.metadata && typeof args.metadata === "object"
+                ? (args.metadata as Record<string, unknown>)
+                : undefined,
+          });
+          return { isError: false, content: result };
+        }
+        case "recall": {
+          const result = await client.memory.recall({
+            query: String(args.query),
+            namespace: args.namespace ? String(args.namespace) : undefined,
+            k: typeof args.k === "number" ? args.k : undefined,
           });
           return { isError: false, content: result };
         }

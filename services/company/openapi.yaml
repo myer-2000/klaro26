@@ -1,0 +1,37 @@
+openapi: 3.1.0
+info:
+  title: Klaro26 Company Intelligence API
+  version: "2026.1"
+  license:
+    name: MIT
+  description: >
+    A name in — funding, competitors, pricing, hiring, tech stack and a
+    synthesized brief out. A live dossier on any company.
+servers:
+  - url: http://localhost:8085
+paths:
+  /company:
+    get:
+      summary: Look up a company dossier.
+      security:
+        - bearer: []
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: sections
+          in: query
+          required: false
+          description: Comma-separated list of sections to include.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The company dossier.
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

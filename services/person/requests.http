@@ -1,0 +1,13 @@
+### Health (no auth)
+GET http://localhost:8086/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8086/
+
+### Resolve a person
+GET http://localhost:8086/person?name=John+Doe
+Authorization: Bearer klaro26_dev_key
+
+### Disambiguate with a hint
+GET http://localhost:8086/person?name=John+Doe&hint=acme.com
+Authorization: Bearer klaro26_dev_key

@@ -1,0 +1,37 @@
+openapi: 3.1.0
+info:
+  title: Klaro26 People API
+  version: "2026.1"
+  license:
+    name: MIT
+  description: >
+    A name (plus optional hint) in — one resolved public profile out:
+    bio, skills, companies, projects and socials.
+servers:
+  - url: http://localhost:8086
+paths:
+  /person:
+    get:
+      summary: Resolve a person into one profile.
+      security:
+        - bearer: []
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: hint
+          in: query
+          required: false
+          description: A company, handle or URL to disambiguate.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The resolved profile.
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

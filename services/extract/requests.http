@@ -1,0 +1,28 @@
+### Health (no auth)
+GET http://localhost:8083/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8083/
+
+### Understand a website
+POST http://localhost:8083/extract
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "url": "https://acme.com"
+}
+
+### Only specific fields
+POST http://localhost:8083/extract
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "url": "https://acme.com",
+  "fields": ["pricing", "faq"]
+}
+
+### Poll the job (paste the id from the POST response)
+GET http://localhost:8083/extract/PASTE_JOB_ID
+Authorization: Bearer klaro26_dev_key

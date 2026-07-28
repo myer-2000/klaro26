@@ -48,11 +48,12 @@ Open source, and available as a hosted service.
 | `POST /video` | Video URL → transcript, chapters, summaries, quotes, timestamps, embeddings | ✅ Available |
 | `POST /document` | PDF, Word, Excel, PowerPoint, images, email → one JSON schema | ✅ Available |
 | `POST /markdown` | YouTube, Reddit, GitHub, Notion, Slack exports → clean Markdown + metadata | ✅ Available |
-| `POST /extract` | Any website → pricing, FAQ, products, contact, docs as typed JSON | 🚧 Planned |
-| `POST /research` | A question → papers, patents, news, companies, a cited timeline | 🚧 Planned |
-| `GET /company` | A name → funding, competitors, pricing, hiring, tech stack, brief | 🚧 Planned |
-| `GET /person` | A name → one resolved profile: bio, skills, companies, socials | 🚧 Planned |
-| `POST /browse` | A task in plain language → structured results, not screenshots | 🚧 Planned |
+| `POST /extract` | Any website → pricing, FAQ, products, contact, docs as typed JSON | ✅ Available |
+| `POST /research` | A question → papers, patents, news, companies, a cited timeline | ✅ Available |
+| `GET /company` | A name → funding, competitors, pricing, hiring, tech stack, brief | ✅ Available |
+| `GET /person` | A name → one resolved profile: bio, skills, companies, socials | ✅ Available |
+| `POST /browse` | A task in plain language → structured results, not screenshots | ✅ Available |
+| `POST /memory` | Write facts + recall them by meaning — an open, self-hostable agent memory | ✅ Available |
 
 ---
 
@@ -207,7 +208,15 @@ klaro26/
 │  ├─ sdk/           # @klaro26/sdk — TypeScript / JavaScript client
 │  └─ mcp/           # @klaro26/mcp — Model Context Protocol tools
 ├─ services/
-│  └─ video/         # Video Knowledge API (reference implementation)
+│  ├─ video/         # Video Knowledge API (reference implementation)
+│  ├─ document/      # Universal Document API
+│  ├─ markdown/      # Everything → Markdown API
+│  ├─ extract/       # Website Understanding API
+│  ├─ research/      # Research API
+│  ├─ company/       # Company Intelligence API (synchronous GET)
+│  ├─ person/        # People API (synchronous GET)
+│  ├─ browse/        # Browser API
+│  └─ memory/        # Agent Memory API (stateful, vector recall)
 ├─ sdks/
 │  └─ python/        # klaro26 — Python client
 ├─ examples/         # runnable quickstarts (TS + Python)
@@ -226,11 +235,12 @@ wire the routes on top of `@klaro26/core`. Copy `services/video` as the template
 - [x] Video Knowledge API + SDKs + MCP
 - [x] `POST /document` — Universal Document
 - [x] `POST /markdown` — Everything → Markdown
-- [ ] `POST /extract` — Website Understanding
-- [ ] `POST /research` — Research
-- [ ] `GET /company` — Company Intelligence
-- [ ] `GET /person` — People
-- [ ] `POST /browse` — Browser
+- [x] `POST /extract` — Website Understanding
+- [x] `POST /research` — Research
+- [x] `GET /company` — Company Intelligence
+- [x] `GET /person` — People
+- [x] `POST /browse` — Browser
+- [x] `POST /memory` — Agent Memory (open, self-hostable)
 - [ ] Redis queue + Postgres/pgvector store adapters
 
 ---

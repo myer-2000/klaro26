@@ -1,0 +1,14 @@
+{
+  "name": "@klaro26/company",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 Company Intelligence API — a name in; funding, competitors, pricing, hiring, tech stack and a brief out.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/core": "file:../../packages/core"
+  }
+}
