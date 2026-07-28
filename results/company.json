@@ -1,0 +1,39 @@
+{
+  "endpoint": "/company",
+  "kind": "REAL",
+  "request": {
+    "name": "Acme",
+    "note": "extracts from the company's own site"
+  },
+  "response": {
+    "name": "Acme",
+    "domain": "acme.io",
+    "summary": "Acme builds developer tools for AI teams.",
+    "funding": [],
+    "competitors": [],
+    "products": [
+      "Starter",
+      "Pro",
+      "Enterprise"
+    ],
+    "pricing": [
+      {
+        "plan": "Starter",
+        "price": "$19/mo"
+      },
+      {
+        "plan": "Pro",
+        "price": "$49/mo"
+      },
+      {
+        "plan": "Enterprise",
+        "price": "$2,000/year"
+      }
+    ],
+    "hiring": [],
+    "techStack": [
+      "Stripe",
+      "Next.js"
+    ]
+  }
+}

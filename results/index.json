@@ -1,0 +1,38 @@
+{
+  "endpoint": "/index",
+  "kind": "REAL",
+  "request": {
+    "crawl": "https://site.test/",
+    "then_search": "open source infrastructure for agents"
+  },
+  "response": {
+    "crawled": [
+      "https://site.test/",
+      "https://site.test/about",
+      "https://site.test/pricing"
+    ],
+    "hits": [
+      {
+        "id": "ff91bd1a0c41bd51",
+        "url": "https://site.test/",
+        "title": "Home",
+        "snippet": "Klaro26\nOpen source infrastructure for AI agents: clean structured data APIs.\nAbout Pricing",
+        "score": 0.559
+      },
+      {
+        "id": "a87bc453725f7a4c",
+        "url": "https://site.test/about",
+        "title": "About",
+        "snippet": "We build open, self-hostable APIs.",
+        "score": 0.169
+      },
+      {
+        "id": "dc50a5e8b8778ec2",
+        "url": "https://site.test/pricing",
+        "title": "Pricing",
+        "snippet": "Free to self-host under MIT.",
+        "score": 0
+      }
+    ]
+  }
+}

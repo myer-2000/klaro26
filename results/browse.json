@@ -1,0 +1,23 @@
+{
+  "endpoint": "/browse",
+  "kind": "REAL subset",
+  "request": {
+    "task": "Read https://acme.io and summarize the pricing"
+  },
+  "response": {
+    "task": "Read https://acme.io and summarize the pricing",
+    "return": "structured",
+    "result": {
+      "url": "https://acme.io",
+      "title": "Acme",
+      "text": "Pricing Starter is $19/mo, Pro $49/mo, Enterprise from $2,000/year.\nIs there a free trial? Yes, 14 days.\nSales API Docs"
+    },
+    "steps": [
+      "fetched https://acme.io",
+      "extracted page content"
+    ],
+    "sources": [
+      "https://acme.io"
+    ]
+  }
+}

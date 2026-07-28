@@ -1,0 +1,71 @@
+{
+  "endpoint": "/document",
+  "kind": "REAL",
+  "request": {
+    "formats": [
+      "html",
+      "csv",
+      "markdown"
+    ]
+  },
+  "response": {
+    "html": {
+      "title": "Shipping the SDK",
+      "type": "html",
+      "sections": [
+        {
+          "heading": "Shipping the SDK",
+          "text": "We shipped **@klaro26/sdk** with [npm](https://npmjs.com) support.\n\n- ESM + CJS\n- Retries\n\n```\nnpm i @klaro26/sdk\n```"
+        }
+      ],
+      "tables": [],
+      "images": [],
+      "text": "Shipping the SDK\nWe shipped @klaro26/sdk with npm support.\nESM + CJS Retries\nnpm i @klaro26/sdk"
+    },
+    "csv": {
+      "title": "Untitled",
+      "type": "csv",
+      "sections": [],
+      "tables": [
+        {
+          "rows": [
+            [
+              "name",
+              "role",
+              "city"
+            ],
+            [
+              "Ada",
+              "Engineer",
+              "London"
+            ],
+            [
+              "Grace",
+              "Scientist",
+              "NYC"
+            ]
+          ]
+        }
+      ],
+      "images": [],
+      "text": "name,role,city\nAda,Engineer,London\nGrace,Scientist,NYC"
+    },
+    "markdown": {
+      "title": "Onboarding",
+      "type": "markdown",
+      "sections": [
+        {
+          "heading": "Onboarding",
+          "text": "Welcome."
+        },
+        {
+          "heading": "Step 1",
+          "text": "Install the SDK."
+        }
+      ],
+      "tables": [],
+      "images": [],
+      "text": "Onboarding\n\nWelcome.\n\nStep 1\n\nInstall the SDK."
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "name": "klaro26-apis",
   "private": true,
   "version": "0.1.0",
-  "description": "Klaro26 — open-source, AI-native infrastructure APIs for agents.",
+  "description": "Klaro26 \u2014 open-source, AI-native infrastructure APIs for agents.",
   "license": "MIT",
   "workspaces": [
     "packages/*",
@@ -27,7 +27,8 @@
     "example": "tsx examples/quickstart.ts",
     "build:sdk": "npm -w @klaro26/sdk run build",
     "release:sdk": "npm -w @klaro26/sdk run build && npm -w @klaro26/sdk publish --access public",
-    "release:python": "cd sdks/python && rm -rf dist && python -m build && twine upload dist/*"
+    "release:python": "cd sdks/python && rm -rf dist && python -m build && twine upload dist/*",
+    "demo": "tsx scripts/demo.ts"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

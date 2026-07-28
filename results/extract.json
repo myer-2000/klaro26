@@ -1,0 +1,43 @@
+{
+  "endpoint": "/extract",
+  "kind": "REAL",
+  "request": {
+    "url": "https://acme.io",
+    "html": "<…acme html…>"
+  },
+  "response": {
+    "url": "https://acme.io",
+    "title": "Acme",
+    "summary": "Acme builds developer tools for AI teams.",
+    "pricing": [
+      {
+        "plan": "Starter",
+        "price": 19,
+        "period": "mo"
+      },
+      {
+        "plan": "Pro",
+        "price": 49,
+        "period": "mo"
+      },
+      {
+        "plan": "Enterprise",
+        "price": 2000,
+        "period": "year"
+      }
+    ],
+    "products": [],
+    "faq": [
+      {
+        "q": "Is there a free trial?",
+        "a": "Yes, 14 days."
+      }
+    ],
+    "contact": {
+      "email": "sales@acme.io"
+    },
+    "docs": [
+      "https://acme.io/developers/docs"
+    ]
+  }
+}

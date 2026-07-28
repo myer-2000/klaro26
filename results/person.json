@@ -1,0 +1,18 @@
+{
+  "endpoint": "/person",
+  "kind": "REAL",
+  "request": {
+    "name": "Ada Lovelace"
+  },
+  "response": {
+    "name": "Ada Lovelace",
+    "bio": "Augusta Ada King, Countess of Lovelace, was an English mathematician and writer, chiefly known for her work on Charles Babbage's Analytical Engine.",
+    "skills": [],
+    "companies": [],
+    "projects": [],
+    "socials": {
+      "wikipedia": "https://en.wikipedia.org/wiki/Ada_Lovelace"
+    },
+    "confidence": 0.8
+  }
+}

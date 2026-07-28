@@ -1,0 +1,31 @@
+{
+  "endpoint": "/memory",
+  "kind": "REAL",
+  "request": {
+    "query": "what is the user building?",
+    "namespace": "u1",
+    "k": 3
+  },
+  "response": {
+    "matches": [
+      {
+        "id": "505891fa-9e07-4dd0-8941-31a1143acbfb",
+        "text": "The user is building Klaro26, an open API company.",
+        "metadata": {},
+        "score": 0.5963
+      },
+      {
+        "id": "9afde484-c450-4fd0-b98e-f7f7a2946e7d",
+        "text": "The user lives in Melbourne.",
+        "metadata": {},
+        "score": 0.4
+      },
+      {
+        "id": "4c81aeb4-b57f-416a-9331-a1e482fe8249",
+        "text": "The user prefers dark mode and terse replies.",
+        "metadata": {},
+        "score": 0.3162
+      }
+    ]
+  }
+}

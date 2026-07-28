@@ -1,0 +1,31 @@
+{
+  "endpoint": "/video",
+  "kind": "REAL",
+  "request": {
+    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  },
+  "response": {
+    "source": {
+      "provider": "youtube",
+      "videoId": "dQw4w9WgXcQ",
+      "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+    },
+    "full": {
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "source": {
+        "provider": "youtube",
+        "videoId": "dQw4w9WgXcQ",
+        "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+        "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      },
+      "durationSec": 0,
+      "language": "unknown",
+      "transcript": [],
+      "chapters": [],
+      "summary": "Recognized youtube video dQw4w9WgXcQ. Transcript, chapters and summary require an ASR or caption provider (wire it behind transcribe()).",
+      "quotes": [],
+      "entities": []
+    }
+  }
+}

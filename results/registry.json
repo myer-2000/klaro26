@@ -1,0 +1,28 @@
+{
+  "endpoint": "/registry",
+  "kind": "REAL",
+  "request": {
+    "search": "database"
+  },
+  "response": {
+    "hits": [
+      {
+        "id": "postgres",
+        "name": "Postgres",
+        "description": "Query a PostgreSQL database read-only and inspect its schema.",
+        "tools": [
+          "query",
+          "list_tables",
+          "describe_table"
+        ],
+        "tags": [
+          "database",
+          "sql",
+          "postgres"
+        ],
+        "url": "https://github.com/modelcontextprotocol/servers",
+        "score": 3
+      }
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "endpoint": "/research",
+  "kind": "REAL (our own index)",
+  "request": {
+    "query": "open source infrastructure for agents",
+    "depth": "quick"
+  },
+  "response": {
+    "query": "open source infrastructure for agents",
+    "depth": "quick",
+    "summary": "Found 3 results in the Klaro26 index for \"open source infrastructure for agents\".",
+    "results": [
+      {
+        "title": "Home",
+        "url": "https://site.test/",
+        "snippet": "Klaro26\nOpen source infrastructure for AI agents: clean structured data APIs.\nAbout Pricing",
+        "score": 0.559
+      },
+      {
+        "title": "About",
+        "url": "https://site.test/about",
+        "snippet": "We build open, self-hostable APIs.",
+        "score": 0.169
+      },
+      {
+        "title": "Pricing",
+        "url": "https://site.test/pricing",
+        "snippet": "Free to self-host under MIT.",
+        "score": 0
+      }
+    ],
+    "papers": [],
+    "patents": [],
+    "news": [],
+    "companies": [],
+    "timeline": [],
+    "citations": 0
+  }
+}
