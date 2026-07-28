@@ -169,9 +169,14 @@ export function htmlToMarkdown(html: string): string {
   return s.replace(/\n{3,}/g, "\n\n").replace(/[ \t]+\n/g, "\n").trim();
 }
 
-/** Plain text of the main content (no Markdown syntax). */
+/** Plain text of the main content (no Markdown syntax). Tags become spaces so
+ *  adjacent blocks don't run together, then space-before-punctuation is tidied. */
 export function extractText(html: string): string {
-  return collapseInline(stripTags(mainContent(html))).replace(/\n{3,}/g, "\n\n").trim();
+  const spaced = mainContent(html).replace(/<[^>]+>/g, " ");
+  return collapseInline(decodeEntities(spaced))
+    .replace(/\s+([.,;:!?])/g, "$1")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 /* ------------------------------------------------------------------ *
@@ -243,10 +248,25 @@ export interface PricePoint {
   amount: number;
   currency: string;
   period?: string;
-  context: string;
+  /** Plan name inferred from the words immediately before the price, if any. */
+  plan?: string;
 }
 
 const CURRENCY: Record<string, string> = { $: "USD", "£": "GBP", "€": "EUR" };
+
+const PLAN_STOPWORDS = new Set([
+  "From", "Only", "Just", "The", "Per", "And", "Or", "Plus", "Save", "Get",
+  "Up", "At", "For", "Starts", "Starting", "Now", "Was",
+]);
+
+/** Infer a plan name from the last capitalized word before a price, e.g. "Pro". */
+function planBefore(text: string, idx: number): string | undefined {
+  const before = text.slice(Math.max(0, idx - 40), idx);
+  const words = before.match(/[A-Z][A-Za-z0-9+]{1,}/g);
+  if (!words) return undefined;
+  const last = words[words.length - 1];
+  return PLAN_STOPWORDS.has(last) ? undefined : last;
+}
 
 export function detectPricing(html: string): PricePoint[] {
   const text = extractText(html);
@@ -260,8 +280,9 @@ export function detectPricing(html: string): PricePoint[] {
     if (seen.has(key)) continue;
     seen.add(key);
     const idx = m.index ?? 0;
-    const context = text.slice(Math.max(0, idx - 40), idx + m[0].length + 10).replace(/\s+/g, " ").trim();
-    const point: PricePoint = { amount, currency: CURRENCY[m[1]] ?? m[1], context };
+    const point: PricePoint = { amount, currency: CURRENCY[m[1]] ?? m[1] };
+    const plan = planBefore(text, idx);
+    if (plan) point.plan = plan;
     if (m[3]) point.period = m[3].replace(/\s|\//g, "");
     out.push(point);
   }

@@ -60,7 +60,7 @@ export async function processExtract(req: ExtractRequest): Promise<WebsiteUnders
   const links = extractLinks(html, req.url);
 
   const pricing: PricingPlan[] = detectPricing(html).map((p) => ({
-    plan: p.context,
+    plan: p.plan ?? "Plan",
     price: p.amount,
     period: p.period,
   }));
