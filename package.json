@@ -10,6 +10,8 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dev:video": "tsx watch services/video/src/index.ts",
     "start:video": "tsx services/video/src/index.ts",
     "start:document": "tsx services/document/src/index.ts",
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@types/node": "^20.14.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.0"
   }
 }

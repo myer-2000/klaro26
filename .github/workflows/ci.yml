@@ -7,7 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  typecheck:
+  node:
+    name: Typecheck, test & build (Node)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,3 +18,20 @@ jobs:
           cache: npm
       - run: npm install
       - run: npm run typecheck
+      - run: npm test
+      - run: npm run build:sdk
+      - run: npm run build -w @klaro26/mcp
+
+  python:
+    name: Test (Python)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install ./sdks/python pytest
+      - run: python -m pytest sdks/python/tests -q
