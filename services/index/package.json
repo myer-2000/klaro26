@@ -1,0 +1,14 @@
+{
+  "name": "@klaro26/index",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 Open Index API — a self-hostable index of the web for agents: submit URLs or text, search by meaning.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/core": "file:../../packages/core"
+  }
+}

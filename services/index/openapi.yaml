@@ -1,0 +1,83 @@
+openapi: 3.1.0
+info:
+  title: Klaro26 Open Index API
+  version: "2026.1"
+  license:
+    name: MIT
+  description: >
+    An open, self-hostable index of the web for agents. Submit URLs or raw
+    text to index; search the corpus by meaning. Content-addressed, so the
+    same content is never stored twice. Ships with a dependency-free
+    embedding + linear cosine search; swap in pgvector for scale.
+servers:
+  - url: http://localhost:8089
+paths:
+  /index:
+    post:
+      summary: Index a URL or raw text.
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                text:
+                  type: string
+                title:
+                  type: string
+                collection:
+                  type: string
+      responses:
+        "201":
+          description: Document indexed.
+        "200":
+          description: Duplicate content — already indexed.
+  /index/search:
+    post:
+      summary: Search the index by meaning.
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query:
+                  type: string
+                collection:
+                  type: string
+                k:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+      responses:
+        "200":
+          description: Ranked hits.
+  /index/{id}:
+    get:
+      summary: Fetch one indexed document.
+      security:
+        - bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The indexed document.
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

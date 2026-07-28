@@ -20,6 +20,8 @@
     "start:person": "tsx services/person/src/index.ts",
     "start:browse": "tsx services/browse/src/index.ts",
     "start:memory": "tsx services/memory/src/index.ts",
+    "start:index": "tsx services/index/src/index.ts",
+    "start:registry": "tsx services/registry/src/index.ts",
     "example": "tsx examples/quickstart.ts"
   },
   "devDependencies": {

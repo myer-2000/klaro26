@@ -93,6 +93,26 @@ services:
       - PORT=8088
       - KLARO26_API_KEYS=klaro26_dev_key
 
+  index:
+    build:
+      context: .
+      dockerfile: services/index/Dockerfile
+    ports:
+      - "8089:8089"
+    environment:
+      - PORT=8089
+      - KLARO26_API_KEYS=klaro26_dev_key
+
+  registry:
+    build:
+      context: .
+      dockerfile: services/registry/Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      - PORT=8090
+      - KLARO26_API_KEYS=klaro26_dev_key
+
   # postgres:
   #   image: pgvector/pgvector:pg16
   #   environment:

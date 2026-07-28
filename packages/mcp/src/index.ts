@@ -170,6 +170,47 @@ export const tools: ToolDef[] = [
       },
     },
   },
+  {
+    name: "index_content",
+    description:
+      "Index a URL or raw text into the open web index so it can be searched later by meaning.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        url: { type: "string", description: "A URL to fetch and index." },
+        text: { type: "string", description: "Or raw text to index directly." },
+        title: { type: "string", description: "Optional title." },
+        collection: { type: "string", description: "Collection to index into." },
+      },
+    },
+  },
+  {
+    name: "search_index",
+    description:
+      "Search the open web index by meaning and get back ranked pages with snippets.",
+    inputSchema: {
+      type: "object",
+      required: ["query"],
+      properties: {
+        query: { type: "string", description: "What to search for." },
+        collection: { type: "string", description: "Collection to search within." },
+        k: { type: "number", description: "How many results to return." },
+      },
+    },
+  },
+  {
+    name: "find_mcp_server",
+    description:
+      "Search the open MCP registry for servers/tools an agent can discover and deploy at runtime.",
+    inputSchema: {
+      type: "object",
+      required: ["query"],
+      properties: {
+        query: { type: "string", description: "What capability you need (e.g. 'database', 'git')." },
+        k: { type: "number", description: "How many results to return." },
+      },
+    },
+  },
 ];
 
 export interface ToolResult {
@@ -258,6 +299,30 @@ export function createDispatcher(client: Klaro26) {
             namespace: args.namespace ? String(args.namespace) : undefined,
             k: typeof args.k === "number" ? args.k : undefined,
           });
+          return { isError: false, content: result };
+        }
+        case "index_content": {
+          const result = await client.index.add({
+            url: args.url ? String(args.url) : undefined,
+            text: args.text ? String(args.text) : undefined,
+            title: args.title ? String(args.title) : undefined,
+            collection: args.collection ? String(args.collection) : undefined,
+          });
+          return { isError: false, content: result };
+        }
+        case "search_index": {
+          const result = await client.index.search({
+            query: String(args.query),
+            collection: args.collection ? String(args.collection) : undefined,
+            k: typeof args.k === "number" ? args.k : undefined,
+          });
+          return { isError: false, content: result };
+        }
+        case "find_mcp_server": {
+          const result = await client.registry.search(
+            String(args.query),
+            typeof args.k === "number" ? args.k : undefined,
+          );
           return { isError: false, content: result };
         }
         default:

@@ -1,0 +1,41 @@
+### Health + stats (no auth)
+GET http://localhost:8089/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8089/
+
+### Index raw text
+POST http://localhost:8089/index
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "title": "Klaro26",
+  "text": "Klaro26 is an open-source, AI-native infrastructure API company.",
+  "collection": "web"
+}
+
+### Index a URL (fetched + extracted)
+POST http://localhost:8089/index
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "url": "https://example.com/article",
+  "collection": "web"
+}
+
+### Search the index by meaning
+POST http://localhost:8089/index/search
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "query": "open source API company",
+  "collection": "web",
+  "k": 5
+}
+
+### Fetch one document (paste the content id)
+GET http://localhost:8089/index/PASTE_ID
+Authorization: Bearer klaro26_dev_key

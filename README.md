@@ -54,6 +54,8 @@ Open source, and available as a hosted service.
 | `GET /person` | A name → one resolved profile: bio, skills, companies, socials | ✅ Available |
 | `POST /browse` | A task in plain language → structured results, not screenshots | ✅ Available |
 | `POST /memory` | Write facts + recall them by meaning — an open, self-hostable agent memory | ✅ Available |
+| `POST /index` | Index URLs or text; search the web by meaning — an open, self-hostable index | ✅ Available |
+| `GET /registry` | A searchable catalog of MCP servers agents can discover and deploy | ✅ Available |
 
 ---
 
@@ -216,7 +218,9 @@ klaro26/
 │  ├─ company/       # Company Intelligence API (synchronous GET)
 │  ├─ person/        # People API (synchronous GET)
 │  ├─ browse/        # Browser API
-│  └─ memory/        # Agent Memory API (stateful, vector recall)
+│  ├─ memory/        # Agent Memory API (stateful, vector recall)
+│  ├─ index/         # Open Index API (content-addressed, semantic search)
+│  └─ registry/      # Open MCP Registry API (searchable server catalog)
 ├─ sdks/
 │  └─ python/        # klaro26 — Python client
 ├─ examples/         # runnable quickstarts (TS + Python)
@@ -241,6 +245,8 @@ wire the routes on top of `@klaro26/core`. Copy `services/video` as the template
 - [x] `GET /person` — People
 - [x] `POST /browse` — Browser
 - [x] `POST /memory` — Agent Memory (open, self-hostable)
+- [x] `POST /index` — Open Index (content-addressed, semantic search)
+- [x] `GET /registry` — Open MCP Registry (searchable server catalog)
 - [ ] Redis queue + Postgres/pgvector store adapters
 
 ---

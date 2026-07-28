@@ -1,0 +1,99 @@
+openapi: 3.1.0
+info:
+  title: Klaro26 Open MCP Registry API
+  version: "2026.1"
+  license:
+    name: MIT
+  description: >
+    A searchable, self-hostable catalog of MCP servers so agents can discover
+    and deploy tools at runtime. Seeded with well-known open servers; register
+    more via POST.
+servers:
+  - url: http://localhost:8090
+paths:
+  /registry:
+    get:
+      summary: List all servers.
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: The full catalog.
+    post:
+      summary: Register an MCP server.
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name, description, tools]
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                url:
+                  type: string
+                tools:
+                  type: array
+                  items:
+                    type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                transport:
+                  type: string
+                  enum: [stdio, http, sse]
+                install:
+                  type: object
+                license:
+                  type: string
+      responses:
+        "201":
+          description: Registered.
+        "200":
+          description: Replaced an existing entry.
+  /registry/search:
+    get:
+      summary: Search the catalog.
+      security:
+        - bearer: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: k
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Ranked hits.
+  /registry/{id}:
+    get:
+      summary: Fetch one server's manifest.
+      security:
+        - bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The server manifest.
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer

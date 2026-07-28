@@ -215,6 +215,77 @@ export interface RecallMatch {
   score: number;
 }
 
+/* ---- Open Index types ---- */
+
+export interface IndexRequest {
+  url?: string;
+  text?: string;
+  title?: string;
+  collection?: string;
+}
+
+export interface IndexSearchRequest {
+  query: string;
+  collection?: string;
+  k?: number;
+}
+
+export interface IndexDoc {
+  id: string;
+  collection: string;
+  url?: string;
+  title: string;
+  text: string;
+  indexedAt: number;
+}
+
+export interface SearchHit {
+  id: string;
+  url?: string;
+  title: string;
+  snippet: string;
+  score: number;
+}
+
+/* ---- Open MCP Registry types ---- */
+
+export interface RegisterRequest {
+  id: string;
+  name: string;
+  description: string;
+  url?: string;
+  tools: string[];
+  tags?: string[];
+  transport?: "stdio" | "http" | "sse";
+  install?: { command: string; args: string[] };
+  publisher?: string;
+  license?: string;
+}
+
+export interface RegistryEntry {
+  id: string;
+  name: string;
+  description: string;
+  url?: string;
+  tools: string[];
+  tags: string[];
+  transport: "stdio" | "http" | "sse";
+  install?: { command: string; args: string[] };
+  publisher: string;
+  license: string;
+  addedAt: number;
+}
+
+export interface RegistryHit {
+  id: string;
+  name: string;
+  description: string;
+  tools: string[];
+  tags: string[];
+  url?: string;
+  score: number;
+}
+
 export type JobStatus = "queued" | "running" | "done" | "failed";
 
 export interface JobState<T> {
@@ -402,6 +473,33 @@ export class Klaro26 {
       this.request("GET", `/memory/${encodeURIComponent(id)}`),
     forget: (id: string): Promise<{ id: string; forgotten: boolean }> =>
       this.request("DELETE", `/memory/${encodeURIComponent(id)}`),
+  };
+
+  /* ---- Open Index (synchronous) ---- */
+
+  index = {
+    add: (input: IndexRequest): Promise<{ id: string; deduped: boolean; indexedAt: number }> =>
+      this.request("POST", "/index", input),
+    search: (input: IndexSearchRequest): Promise<{ hits: SearchHit[] }> =>
+      this.request("POST", "/index/search", input),
+    get: (id: string): Promise<IndexDoc> =>
+      this.request("GET", `/index/${encodeURIComponent(id)}`),
+  };
+
+  /* ---- Open MCP Registry (synchronous) ---- */
+
+  registry = {
+    register: (input: RegisterRequest): Promise<{ id: string; replaced: boolean; addedAt: number }> =>
+      this.request("POST", "/registry", input),
+    list: (): Promise<{ servers: RegistryEntry[] }> =>
+      this.request("GET", "/registry"),
+    search: (query: string, k?: number): Promise<{ hits: RegistryHit[] }> => {
+      const q = new URLSearchParams({ q: query });
+      if (k) q.set("k", String(k));
+      return this.request("GET", `/registry/search?${q.toString()}`);
+    },
+    get: (id: string): Promise<RegistryEntry> =>
+      this.request("GET", `/registry/${encodeURIComponent(id)}`),
   };
 
   /** Shared polling loop used by every job-based endpoint. */

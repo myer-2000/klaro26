@@ -1,0 +1,14 @@
+{
+  "name": "@klaro26/registry",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 Open MCP Registry API — a searchable, self-hostable catalog of MCP servers agents can discover and deploy.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@klaro26/core": "file:../../packages/core"
+  }
+}

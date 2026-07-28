@@ -1,0 +1,33 @@
+### Health + stats (no auth)
+GET http://localhost:8090/healthz
+
+### Service manifest (no auth)
+GET http://localhost:8090/
+
+### List all servers (seeded catalog)
+GET http://localhost:8090/registry
+Authorization: Bearer klaro26_dev_key
+
+### Search the catalog
+GET http://localhost:8090/registry/search?q=database
+Authorization: Bearer klaro26_dev_key
+
+### Fetch one server's install manifest
+GET http://localhost:8090/registry/filesystem
+Authorization: Bearer klaro26_dev_key
+
+### Register a new MCP server
+POST http://localhost:8090/registry
+Authorization: Bearer klaro26_dev_key
+Content-Type: application/json
+
+{
+  "id": "acme-crm",
+  "name": "Acme CRM",
+  "description": "Read and update contacts and deals in Acme CRM.",
+  "url": "https://github.com/acme/mcp-crm",
+  "tools": ["list_contacts", "create_deal", "update_deal"],
+  "tags": ["crm", "sales"],
+  "install": { "command": "npx", "args": ["-y", "@acme/mcp-crm"] },
+  "license": "MIT"
+}
