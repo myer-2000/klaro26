@@ -13,9 +13,23 @@
 
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { TokenBucket, authenticate, loadKeys } from "@klaro26/core";
-import { parseIndexRequest, parseSearchRequest } from "./schema.js";
+import { parseCrawlRequest, parseIndexRequest, parseSearchRequest } from "./schema.js";
 import { resolveContent } from "./pipeline.js";
+import { crawl } from "./crawl.js";
 import { IndexStore } from "./store.js";
+
+/** Real fetcher for the crawler — returns page HTML or null on failure. */
+async function fetchHtml(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { "user-agent": "klaro26-index/1.0 (+https://klaro26.dev)", accept: "text/html" },
+    });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
+}
 
 const PORT = Number(process.env.PORT ?? 8089);
 const KEYS = loadKeys();
@@ -48,6 +62,7 @@ const MANIFEST = {
   auth: { scheme: "Bearer", header: "Authorization" },
   endpoints: [
     { method: "POST", path: "/index", summary: "Index a URL or raw text." },
+    { method: "POST", path: "/index/crawl", summary: "Crawl a site and index every page." },
     { method: "POST", path: "/index/search", summary: "Search the index by meaning." },
     { method: "GET", path: "/index/:id", summary: "Fetch one indexed document." },
     { method: "GET", path: "/healthz", summary: "Liveness probe." },
@@ -67,6 +82,27 @@ const server = createServer(async (req, res) => {
   if (!auth.ok) return send(res, 401, auth);
   if (!LIMITER.take(auth.data)) {
     return send(res, 429, { ok: false, error: { code: "rate_limited", message: "Slow down" } });
+  }
+
+  // POST /index/crawl — our own crawler populates the index
+  if (req.method === "POST" && path === "/index/crawl") {
+    const body = await readBody(req);
+    if (body === undefined) {
+      return send(res, 400, { ok: false, error: { code: "bad_json", message: "Invalid JSON" } });
+    }
+    const parsed = parseCrawlRequest(body);
+    if (!parsed.ok) {
+      return send(res, 400, { ok: false, error: { code: "invalid_request", message: parsed.message } });
+    }
+    const pages = await crawl([parsed.value.url], parsed.value, fetchHtml);
+    const ids = pages.map(
+      (p) =>
+        store.index({ collection: parsed.value.collection, url: p.url, title: p.title, text: p.text }).doc.id,
+    );
+    return send(res, 200, {
+      ok: true,
+      data: { crawled: pages.length, indexed: ids.length, pages: pages.map((p) => p.url) },
+    });
   }
 
   // POST /index/search  (checked before /index so the suffix wins)
