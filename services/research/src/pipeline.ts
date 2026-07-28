@@ -1,90 +1,82 @@
 /**
- * The Research pipeline:
+ * The Research pipeline — powered by our OWN index, not a third party.
  *
- *   query → search sources → dedupe → JSON
+ *   query → search the Klaro26 index → ranked results
  *
- * Papers are REAL: they come from the public arXiv API (no key required). The
- * Atom response is parsed deterministically by `parseArxivAtom` (unit-tested).
- * Patents, news and company signals still need their own providers (patent
- * offices, news APIs, company graphs) and stay empty behind the seam rather
- * than fabricated.
+ * Research runs on the corpus our own crawler built (see the /index service).
+ * There are no external providers here: it queries /index/search over the
+ * shared gateway. Academic papers, patents and news are separate specialised
+ * sources and stay honest-empty seams until their own providers are wired.
  */
 
-import { decodeEntities } from "@klaro26/html";
-import type { Paper, ResearchRequest, ResearchResult } from "./schema.js";
+import type { ResearchRequest, ResearchResult, WebResult } from "./schema.js";
 
-/** Deeper runs pull more results from each source. */
+const INDEX_URL = (process.env.KLARO26_INDEX_URL ?? "http://localhost:8089").replace(/\/$/, "");
+const API_KEY = process.env.KLARO26_API_KEY ?? "klaro26_dev_key";
+
 const COVERAGE: Record<ResearchRequest["depth"] & string, number> = {
-  quick: 4,
-  standard: 8,
-  deep: 16,
+  quick: 5,
+  standard: 10,
+  deep: 25,
 };
 
-function tag(entry: string, name: string): string | undefined {
-  const m = new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`, "i").exec(entry);
-  return m ? decodeEntities(m[1].replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim() : undefined;
+interface IndexHit {
+  id: string;
+  url?: string;
+  title: string;
+  snippet: string;
+  score: number;
 }
 
-/** Parse an arXiv Atom feed into papers — the real, testable core. */
-export function parseArxivAtom(xml: string): Paper[] {
-  const papers: Paper[] = [];
-  for (const e of xml.matchAll(/<entry>([\s\S]*?)<\/entry>/gi)) {
-    const entry = e[1];
-    const title = tag(entry, "title");
-    if (!title) continue;
-    const published = tag(entry, "published") ?? "";
-    const year = Number(published.slice(0, 4)) || 0;
-    const url = tag(entry, "id");
-    const authors = [...entry.matchAll(/<author>[\s\S]*?<name>([\s\S]*?)<\/name>[\s\S]*?<\/author>/gi)].map((a) =>
-      decodeEntities(a[1]).trim(),
-    );
-    papers.push({ title, authors: authors.length ? authors : undefined, year, url });
-  }
-  return papers;
+/** Shape index hits into a research result — pure + unit-tested. */
+export function toResearchResult(
+  query: string,
+  depth: ResearchResult["depth"],
+  hits: IndexHit[],
+  note = "",
+): ResearchResult {
+  const results: WebResult[] = hits.map((h) => ({
+    title: h.title,
+    url: h.url,
+    snippet: h.snippet,
+    score: h.score,
+  }));
+  return {
+    query,
+    depth,
+    summary:
+      results.length > 0
+        ? `Found ${results.length} results in the Klaro26 index for "${query}".`
+        : `No results in the index for "${query}"${note}. Populate it with POST /index/crawl.`,
+    results,
+    papers: [],
+    patents: [],
+    news: [],
+    companies: [],
+    timeline: [],
+    citations: 0,
+  };
 }
 
-async function searchArxiv(query: string, max: number): Promise<Paper[]> {
-  const q = encodeURIComponent(query);
-  const url = `http://export.arxiv.org/api/query?search_query=all:${q}&start=0&max_results=${max}&sortBy=relevance`;
-  const res = await fetch(url, { headers: { "user-agent": "klaro26-research/1.0 (+https://klaro26.dev)" } });
-  if (!res.ok) throw new Error(`arXiv fetch failed: HTTP ${res.status}`);
-  return parseArxivAtom(await res.text());
+async function searchIndex(query: string, k: number): Promise<IndexHit[]> {
+  const res = await fetch(`${INDEX_URL}/index/search`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${API_KEY}`, "content-type": "application/json" },
+    body: JSON.stringify({ query, k }),
+  });
+  if (!res.ok) throw new Error(`index search failed: HTTP ${res.status}`);
+  const json = (await res.json()) as { ok: boolean; data?: { hits: IndexHit[] }; error?: { message: string } };
+  if (!json.ok || !json.data) throw new Error(json.error?.message ?? "index error");
+  return json.data.hits;
 }
 
 export async function processResearch(req: ResearchRequest): Promise<ResearchResult> {
   const depth = req.depth ?? "standard";
-  const max = COVERAGE[depth] ?? 8;
-
-  let papers: Paper[] = [];
-  let sourceNote = "";
+  const k = COVERAGE[depth] ?? 10;
   try {
-    papers = await searchArxiv(req.query, max);
+    const hits = await searchIndex(req.query, k);
+    return toResearchResult(req.query, depth, hits);
   } catch (e) {
-    sourceNote = ` (arXiv unreachable: ${e instanceof Error ? e.message : String(e)})`;
+    return toResearchResult(req.query, depth, [], ` (index unreachable: ${e instanceof Error ? e.message : String(e)})`);
   }
-
-  // A simple real timeline: earliest → latest paper year.
-  const years = papers.map((p) => p.year).filter((y) => y > 0).sort((a, b) => a - b);
-  const timeline =
-    years.length > 0
-      ? [
-          { date: String(years[0]), event: "Earliest matching paper" },
-          { date: String(years[years.length - 1]), event: "Most recent matching paper" },
-        ]
-      : [];
-
-  return {
-    query: req.query,
-    depth,
-    summary:
-      papers.length > 0
-        ? `Found ${papers.length} arXiv papers for "${req.query}". Patents, news and company signals need additional providers (not fabricated).`
-        : `No papers returned${sourceNote}. Patents, news and company signals need additional providers (not fabricated).`,
-    papers,
-    patents: [],
-    news: [],
-    companies: [],
-    timeline,
-    citations: papers.length,
-  };
 }

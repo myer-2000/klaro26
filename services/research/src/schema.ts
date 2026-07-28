@@ -35,10 +35,20 @@ export interface TimelineEvent {
   event: string;
 }
 
+/** A hit from our own crawled index — the primary research source. */
+export interface WebResult {
+  title: string;
+  url?: string;
+  snippet: string;
+  score: number;
+}
+
 export interface ResearchResult {
   query: string;
   depth: Depth;
   summary: string;
+  /** Ranked results from Klaro26's own index (our crawler, not a third party). */
+  results: WebResult[];
   papers: Paper[];
   patents: Patent[];
   news: NewsItem[];

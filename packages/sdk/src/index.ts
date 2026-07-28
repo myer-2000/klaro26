@@ -144,6 +144,7 @@ export interface ResearchResult {
   query: string;
   depth: "quick" | "standard" | "deep";
   summary: string;
+  results: { title: string; url?: string; snippet: string; score: number }[];
   papers: { title: string; authors?: string[]; year: number; url?: string }[];
   patents: { id: string; title?: string; assignee: string; year?: number }[];
   news: { title: string; source?: string; date?: string; url?: string }[];
