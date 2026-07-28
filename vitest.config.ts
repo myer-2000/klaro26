@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       "@klaro26/core": new URL("./packages/core/src/index.ts", import.meta.url).pathname,
       "@klaro26/sdk": new URL("./packages/sdk/src/index.ts", import.meta.url).pathname,
+      "@klaro26/html": new URL("./packages/html/src/index.ts", import.meta.url).pathname,
     },
   },
 });

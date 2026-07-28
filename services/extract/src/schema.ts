@@ -6,6 +6,8 @@
 export interface ExtractRequest {
   /** The website to understand. */
   url: string;
+  /** Provide raw HTML to understand directly, skipping the fetch. */
+  html?: string;
   /** Restrict extraction to specific sections (pricing, faq, products, …). */
   fields?: string[];
 }
@@ -54,6 +56,9 @@ export function parseExtractRequest(
   } catch {
     return { ok: false, message: "'url' must be a valid URL" };
   }
+  if (b.html !== undefined && typeof b.html !== "string") {
+    return { ok: false, message: "'html' must be a string when provided" };
+  }
   let fields: string[] | undefined;
   if (b.fields !== undefined) {
     if (!Array.isArray(b.fields) || b.fields.some((f) => typeof f !== "string")) {
@@ -65,5 +70,8 @@ export function parseExtractRequest(
     }
     fields = b.fields as string[];
   }
-  return { ok: true, value: { url: b.url, fields } };
+  return {
+    ok: true,
+    value: { url: b.url, html: typeof b.html === "string" ? b.html : undefined, fields },
+  };
 }

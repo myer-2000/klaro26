@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@klaro26/core": ["packages/core/src/index.ts"],
-      "@klaro26/sdk": ["packages/sdk/src/index.ts"]
+      "@klaro26/sdk": ["packages/sdk/src/index.ts"],
+      "@klaro26/html": ["packages/html/src/index.ts"]
     }
   },
   "include": ["packages/*/src/**/*.ts", "services/*/src/**/*.ts"]

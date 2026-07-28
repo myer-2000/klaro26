@@ -1,0 +1,11 @@
+{
+  "name": "@klaro26/html",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Klaro26 shared HTML toolkit — dependency-free HTML→Markdown and structured-data extraction.",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
