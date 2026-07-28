@@ -8,12 +8,21 @@
  * Zero dependencies — uses the global `fetch` (Node 18+ / modern runtimes).
  */
 
+/** Package version, sent as part of the User-Agent header. */
+export const VERSION = "0.2.0";
+
 export interface ClientOptions {
   apiKey: string;
   /** Defaults to the local dev server; point at the hosted API in production. */
   baseUrl?: string;
   /** Override the fetch implementation (e.g. for tests). */
   fetch?: typeof fetch;
+  /** Abort a request after this many ms (default 30000). */
+  timeoutMs?: number;
+  /** Retry attempts on 429 / 5xx / network errors (default 2). */
+  maxRetries?: number;
+  /** Extra headers merged into every request. */
+  headers?: Record<string, string>;
 }
 
 export interface Ok<T> {
@@ -308,6 +317,9 @@ export class Klaro26 {
   private readonly apiKey: string;
   private readonly baseUrl: string;
   private readonly fetchImpl: typeof fetch;
+  private readonly timeoutMs: number;
+  private readonly maxRetries: number;
+  private readonly extraHeaders: Record<string, string>;
 
   constructor(opts: ClientOptions) {
     if (!opts.apiKey) throw new Error("Klaro26: apiKey is required");
@@ -317,6 +329,14 @@ export class Klaro26 {
     if (!this.fetchImpl) {
       throw new Error("Klaro26: no fetch implementation found — pass one via options");
     }
+    this.timeoutMs = opts.timeoutMs ?? 30_000;
+    this.maxRetries = opts.maxRetries ?? 2;
+    this.extraHeaders = opts.headers ?? {};
+  }
+
+  /** Retry on rate limits, server errors and transient network failures. */
+  private retryable(status: number): boolean {
+    return status === 429 || status === 408 || (status >= 500 && status <= 599);
   }
 
   private async request<T>(
@@ -324,23 +344,78 @@ export class Klaro26 {
     path: string,
     body?: unknown,
   ): Promise<T> {
-    const res = await this.fetchImpl(`${this.baseUrl}${path}`, {
-      method,
-      headers: {
-        authorization: `Bearer ${this.apiKey}`,
-        ...(body ? { "content-type": "application/json" } : {}),
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-    const json = (await res.json()) as ApiResult<T>;
-    if (!json.ok) {
-      throw new Klaro26Error(
-        json.error?.code ?? "error",
-        json.error?.message ?? res.statusText,
-        res.status,
-      );
+    const url = `${this.baseUrl}${path}`;
+    const headers: Record<string, string> = {
+      authorization: `Bearer ${this.apiKey}`,
+      "user-agent": `klaro26-sdk-js/${VERSION}`,
+      accept: "application/json",
+      ...this.extraHeaders,
+      ...(body ? { "content-type": "application/json" } : {}),
+    };
+    const payload = body ? JSON.stringify(body) : undefined;
+
+    let lastErr: unknown;
+    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+      try {
+        const res = await this.fetchImpl(url, {
+          method,
+          headers,
+          body: payload,
+          signal: controller.signal,
+        });
+
+        // Retry transient HTTP failures with capped exponential backoff.
+        if (this.retryable(res.status) && attempt < this.maxRetries) {
+          await sleep(this.backoff(attempt, res.headers.get("retry-after")));
+          continue;
+        }
+
+        let json: ApiResult<T>;
+        try {
+          json = (await res.json()) as ApiResult<T>;
+        } catch {
+          throw new Klaro26Error(
+            "bad_response",
+            `Non-JSON response (HTTP ${res.status})`,
+            res.status,
+          );
+        }
+        if (!json.ok) {
+          throw new Klaro26Error(
+            json.error?.code ?? "error",
+            json.error?.message ?? res.statusText,
+            res.status,
+          );
+        }
+        return json.data;
+      } catch (e) {
+        lastErr = e;
+        // Don't retry deliberate API errors — only network/abort failures.
+        if (e instanceof Klaro26Error) throw e;
+        if (attempt < this.maxRetries) {
+          await sleep(this.backoff(attempt, null));
+          continue;
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        throw new Klaro26Error("network_error", message, 0);
+      } finally {
+        clearTimeout(timer);
+      }
     }
-    return json.data;
+    // Unreachable in practice, but keeps the type checker happy.
+    throw lastErr instanceof Error ? lastErr : new Error("Klaro26: request failed");
+  }
+
+  /** Capped exponential backoff with jitter; honours Retry-After when present. */
+  private backoff(attempt: number, retryAfter: string | null): number {
+    if (retryAfter) {
+      const secs = Number(retryAfter);
+      if (Number.isFinite(secs)) return Math.min(secs * 1000, 20_000);
+    }
+    const base = Math.min(500 * 2 ** attempt, 8_000);
+    return base + Math.floor(Math.random() * 250);
   }
 
   /* ---- Video Knowledge ---- */

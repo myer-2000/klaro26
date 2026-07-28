@@ -1,11 +1,60 @@
 {
   "name": "@klaro26/sdk",
-  "version": "0.1.0",
-  "type": "module",
+  "version": "0.2.0",
+  "description": "Official TypeScript / JavaScript SDK for the Klaro26 APIs — clean, structured data for AI agents.",
   "license": "MIT",
-  "description": "Official TypeScript / JavaScript SDK for the Klaro26 APIs.",
-  "main": "src/index.ts",
+  "author": "Klaro26",
+  "homepage": "https://github.com/myer-2000/klaro26/tree/main/packages/sdk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/myer-2000/klaro26.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/myer-2000/klaro26/issues"
+  },
+  "keywords": [
+    "klaro26",
+    "ai",
+    "agents",
+    "sdk",
+    "api",
+    "structured-data",
+    "scraping",
+    "rag",
+    "mcp"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
