@@ -1,13 +1,62 @@
 {
   "name": "@klaro26/mcp",
-  "version": "0.1.0",
-  "type": "module",
+  "version": "0.2.0",
+  "description": "Model Context Protocol server for Klaro26 — give any MCP client clean, structured data for AI agents.",
   "license": "MIT",
-  "description": "Model Context Protocol tools for Klaro26 — give any MCP client clean data.",
+  "author": "Klaro26",
+  "homepage": "https://github.com/myer-2000/klaro26/tree/main/packages/mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/myer-2000/klaro26.git",
+    "directory": "packages/mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/myer-2000/klaro26/issues"
+  },
+  "keywords": [
+    "klaro26",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "agents",
+    "tools"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "bin": {
-    "klaro26-mcp": "src/index.ts"
+    "klaro26-mcp": "./dist/server.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@klaro26/sdk": "file:../sdk"
+    "@klaro26/sdk": "^0.2.0",
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

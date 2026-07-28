@@ -23,10 +23,16 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run build -w @klaro26/sdk
+      - run: npm run build -w @klaro26/mcp
       # --provenance publishes a verifiable link back to this repo/commit.
       # Drop it if you'd rather not, or if the org isn't provenance-enabled.
+      # SDK first — @klaro26/mcp depends on it.
       - run: npm publish --access public --provenance
         working-directory: packages/sdk
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish --access public --provenance
+        working-directory: packages/mcp
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
