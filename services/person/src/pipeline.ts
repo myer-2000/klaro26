@@ -10,16 +10,16 @@
 import type { PersonProfile, PersonRequest } from "./schema.js";
 
 export async function processPerson(req: PersonRequest): Promise<PersonProfile> {
-  // A hint (company/handle/URL) raises resolution confidence.
-  const confidence = req.hint ? 0.92 : 0.74;
-  // TODO: real multi-source search + entity resolution + profile merge.
+  // Honest seam: resolving a person needs a people-search provider + entity
+  // resolution across sources. Rather than fabricate a profile, we return the
+  // empty, correctly-shaped contract (confidence 0) with a clear note.
   return {
     name: req.name,
-    bio: `[stub] Short public bio for ${req.name}${req.hint ? ` (${req.hint})` : ""}.`,
-    skills: ["[stub] skill A", "[stub] skill B"],
-    companies: ["[stub] Current Co", "[stub] Previous Co"],
-    projects: ["[stub] Notable project"],
-    socials: { x: "[stub] https://x.com/…", github: "[stub] https://github.com/…" },
-    confidence,
+    bio: `Person resolution requires a people-search provider wired behind this seam. No profile is fabricated for "${req.name}".`,
+    skills: [],
+    companies: [],
+    projects: [],
+    socials: {},
+    confidence: 0,
   };
 }

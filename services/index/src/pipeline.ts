@@ -8,16 +8,21 @@
  * seam; the store and search are unchanged.
  */
 
+import { extractMetadata, extractText } from "@klaro26/html";
 import type { IndexRequest } from "./schema.js";
 
-/* Fetch + extract main content ------------------------------------- *
- * Prod: fetch + readability / headless render; respect robots.txt. */
+/* Fetch + extract main content — real: fetch the page and pull its clean text
+ * and title via @klaro26/html. Respect robots.txt / a headless render for
+ * JS-heavy pages when you productionise. */
 async function fetchAndExtract(url: string): Promise<{ title: string; text: string }> {
-  // TODO: real fetch + main-content extraction.
-  const host = new URL(url).hostname;
+  const res = await fetch(url, {
+    headers: { "user-agent": "klaro26-index/1.0 (+https://klaro26.dev)", accept: "text/html" },
+  });
+  if (!res.ok) throw new Error(`fetch failed: HTTP ${res.status}`);
+  const html = await res.text();
   return {
-    title: `[stub] ${host}`,
-    text: `[stub] Indexed main content for ${url}.`,
+    title: extractMetadata(html).title ?? new URL(url).hostname,
+    text: extractText(html),
   };
 }
 

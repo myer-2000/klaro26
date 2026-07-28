@@ -18,25 +18,24 @@ const COVERAGE: Record<ResearchRequest["depth"] & string, number> = {
 
 export async function processResearch(req: ResearchRequest): Promise<ResearchResult> {
   const depth = req.depth ?? "standard";
-  const factor = COVERAGE[depth] ?? 2;
+  // COVERAGE controls fan-out once real sources are wired; referenced here so
+  // the depth setting stays part of the contract.
+  void COVERAGE[depth];
 
-  // TODO: real multi-source search (academic, patents, news, company graphs)
-  // + LLM synthesis with inline citations.
+  // Honest seam: research needs external providers (academic, patent, news and
+  // company-graph search) + LLM synthesis. Rather than fabricate results, we
+  // return the empty, correctly-shaped contract with a clear note. Wire the
+  // providers here and populate the arrays.
   return {
     query: req.query,
     depth,
-    summary: `[stub] Synthesized answer to "${req.query}" with ${factor}× source coverage.`,
-    papers: Array.from({ length: factor }, (_, i) => ({
-      title: `[stub] Paper ${i + 1} on ${req.query}`,
-      year: 2026,
-    })),
-    patents: [{ id: "[stub] US-0000000", assignee: "[stub] Assignee", year: 2025 }],
-    news: [{ title: `[stub] Recent development in ${req.query}`, source: "[stub]", date: "2026-07" }],
-    companies: ["[stub] Company A", "[stub] Company B"],
-    timeline: [
-      { date: "2024", event: "[stub] earlier milestone" },
-      { date: "2026", event: "[stub] latest milestone" },
-    ],
-    citations: factor * 8,
+    summary:
+      "Research requires external search providers (academic, patents, news, company graphs) wired behind this seam. No results are fabricated.",
+    papers: [],
+    patents: [],
+    news: [],
+    companies: [],
+    timeline: [],
+    citations: 0,
   };
 }

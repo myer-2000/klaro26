@@ -75,15 +75,16 @@ async function fetchText(url: string): Promise<string> {
   return res.text();
 }
 
-/** Seam: binary formats need real parsers/OCR. */
+/** Seam: binary formats need real parsers/OCR (pdf-parse / mammoth / xlsx). */
 function parseBinary(type: string): Document {
+  const note = `${type.toUpperCase()} parsing requires a binary parser wired behind parseBinary(). No content is fabricated.`;
   return {
-    title: `[stub] ${type.toUpperCase()} document`,
+    title: `${type.toUpperCase()} document`,
     type,
-    sections: [{ heading: "Note", text: `Wire a real ${type} parser behind parseBinary() to extract this.` }],
+    sections: [{ heading: "Note", text: note }],
     tables: [],
     images: [],
-    text: `[stub] ${type} parsing not wired in this build.`,
+    text: note,
   };
 }
 

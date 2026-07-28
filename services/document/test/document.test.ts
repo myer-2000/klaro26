@@ -43,6 +43,6 @@ describe("processDocument (real, content-based)", () => {
   it("keeps binary formats behind the seam", async () => {
     const out = await processDocument({ url: "x", content: "ignored", type: "pdf" });
     expect(out.type).toBe("pdf");
-    expect(out.text).toContain("[stub]");
+    expect(out.text).toContain("requires a binary parser");
   });
 });

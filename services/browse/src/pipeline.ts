@@ -11,27 +11,19 @@ import type { BrowseRequest, BrowseResult } from "./schema.js";
 
 export async function processBrowse(req: BrowseRequest): Promise<BrowseResult> {
   const ret = req.return ?? "structured";
-  // TODO: real agent loop over a headless browser (Playwright), handling
-  // logins, CAPTCHAs and dynamic UIs, then structured extraction.
-  const steps = [
-    "[stub] open target site",
-    "[stub] navigate to the relevant page",
-    "[stub] read and extract the answer",
-  ];
-  const sources = ["[stub] https://example.com/result"];
+  // Honest seam: driving a task needs a headless browser (Playwright) with an
+  // agent loop for logins, CAPTCHAs and dynamic UIs. Rather than fabricate an
+  // answer, we return the empty, correctly-shaped contract with a clear note.
+  const note =
+    "Browser automation requires a headless browser (Playwright) + agent loop wired behind this seam. No answer is fabricated.";
 
   const base: BrowseResult = {
     task: req.task,
     return: ret,
-    result:
-      ret === "markdown"
-        ? `# [stub] Result\n\nAnswer to: ${req.task}`
-        : { answer: `[stub] structured answer to: ${req.task}` },
-    steps,
-    sources,
+    result: ret === "markdown" ? `# Not run\n\n${note}` : { note },
+    steps: [],
+    sources: [],
   };
-  if (ret === "screenshots") {
-    base.screenshots = ["[stub] data:image/png;base64,…"];
-  }
+  if (ret === "screenshots") base.screenshots = [];
   return base;
 }
