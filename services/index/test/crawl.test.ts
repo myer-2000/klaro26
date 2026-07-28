@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { crawl, type FetchHtml } from "../src/crawl.js";
+import { crawl, robotsAllows, robotsDisallows, type FetchHtml } from "../src/crawl.js";
 import { IndexStore } from "../src/store.js";
 
 /* A fake same-origin site plus one external link — served without any network. */
@@ -37,6 +37,35 @@ describe("crawl (our own crawler)", () => {
     const home = pages.find((p) => p.url === "https://site.test/")!;
     expect(home.title).toBe("Home");
     expect(home.text).toContain("Open source infrastructure for AI agents.");
+  });
+});
+
+describe("robots.txt", () => {
+  it("parses Disallow rules for * (and ignores other agents)", () => {
+    const txt = "User-agent: *\nDisallow: /private\nDisallow: /tmp\n\nUser-agent: evilbot\nDisallow: /";
+    expect(robotsDisallows(txt)).toEqual(["/private", "/tmp"]);
+  });
+  it("allows/denies by path prefix", () => {
+    expect(robotsAllows(["/private"], "/private/x")).toBe(false);
+    expect(robotsAllows(["/private"], "/public")).toBe(true);
+  });
+  it("skips disallowed pages while crawling", async () => {
+    const site: Record<string, string> = {
+      ...SITE,
+      "https://site.test/robots.txt": "User-agent: *\nDisallow: /pricing",
+    };
+    const f: FetchHtml = async (u) => site[u] ?? null;
+    const pages = await crawl(["https://site.test/"], {}, f);
+    const urls = pages.map((p) => p.url);
+    expect(urls).toContain("https://site.test/about");
+    expect(urls).not.toContain("https://site.test/pricing");
+  });
+});
+
+describe("depth", () => {
+  it("maxDepth 0 fetches only the seed", async () => {
+    const pages = await crawl(["https://site.test/"], { maxDepth: 0 }, fakeFetch);
+    expect(pages.map((p) => p.url)).toEqual(["https://site.test/"]);
   });
 });
 
