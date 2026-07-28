@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    include: ["packages/**/test/**/*.test.ts"],
+    include: ["packages/**/test/**/*.test.ts", "services/**/test/**/*.test.ts"],
     environment: "node",
     // Resolve the workspace path aliases the same way the monorepo tsconfig does,
     // so tests import @klaro26/* straight from source.

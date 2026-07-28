@@ -99,8 +99,14 @@ class _Document(_Job):
 class _Markdown(_Job):
     _path = "/markdown"
 
-    def run(self, url: str, embeddings: bool = False, **kw: Any) -> Dict[str, Any]:
-        return super().run(url=url, embeddings=embeddings, **kw)
+    def run(
+        self,
+        url: str,
+        html: Optional[str] = None,
+        embeddings: bool = False,
+        **kw: Any,
+    ) -> Dict[str, Any]:
+        return super().run(url=url, html=html, embeddings=embeddings, **kw)
 
 
 class _Extract(_Job):

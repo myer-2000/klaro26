@@ -5,6 +5,8 @@
 
 export interface MarkdownRequest {
   url: string;
+  /** Provide raw HTML to convert directly, skipping the fetch. */
+  html?: string;
   /** Return per-chunk embeddings alongside the text. */
   embeddings?: boolean;
 }
@@ -37,8 +39,15 @@ export function parseMarkdownRequest(
   } catch {
     return { ok: false, message: "'url' must be a valid URL" };
   }
+  if (b.html !== undefined && typeof b.html !== "string") {
+    return { ok: false, message: "'html' must be a string when provided" };
+  }
   return {
     ok: true,
-    value: { url: b.url, embeddings: Boolean(b.embeddings) },
+    value: {
+      url: b.url,
+      html: typeof b.html === "string" ? b.html : undefined,
+      embeddings: Boolean(b.embeddings),
+    },
   };
 }

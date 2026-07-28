@@ -1,17 +1,20 @@
 /**
  * The Everything → Markdown pipeline:
  *
- *   identify source → fetch → parse → normalize → clean Markdown → (embed)
+ *   identify source → fetch → parse HTML → clean Markdown → (embed)
  *
- * A single canonical intermediate representation means every connector feeds
- * the same downstream steps. Deterministic stubs ship so the service runs with
- * nothing installed.
+ * The HTML → Markdown conversion and metadata extraction are *real* (see
+ * `html.ts`) and fully deterministic. Fetching is the one seam: it uses the
+ * global `fetch` for web pages, and per-source connectors (YouTube transcripts,
+ * Reddit JSON, GitHub API, …) drop in behind `fetchSource` without changing the
+ * rest of the pipeline.
  */
 
 import type { MarkdownRequest, MarkdownResult } from "./schema.js";
+import { extractMetadata, htmlToMarkdown } from "./html.js";
+import { embedParagraphs } from "./embed.js";
 
-/* 1) Identify source ------------------------------------------------ */
-function identifySource(url: string): string {
+export function identifySource(url: string): string {
   const host = (() => {
     try {
       return new URL(url).hostname.replace(/^www\./, "");
@@ -26,31 +29,27 @@ function identifySource(url: string): string {
   return host;
 }
 
-/* 2) Fetch + parse + normalize ------------------------------------- *
- * Prod: per-source connector → canonical blocks → Markdown renderer. */
-async function toMarkdown(url: string, source: string): Promise<string> {
-  // TODO: real per-source connectors.
-  return `# [stub] Title\n\nClean Markdown extracted from a ${source} source.\n\n- Source: ${url}\n- Normalized to one canonical format.\n`;
+/* Fetch the raw HTML for a URL. Per-source connectors slot in here. */
+async function fetchSource(url: string): Promise<string> {
+  const res = await fetch(url, {
+    headers: { "user-agent": "klaro26-markdown/1.0 (+https://klaro26.dev)", accept: "text/html" },
+  });
+  if (!res.ok) throw new Error(`fetch failed: HTTP ${res.status}`);
+  return res.text();
 }
 
-/* 3) Embed (optional) ---------------------------------------------- */
-async function embed(markdown: string): Promise<number[][]> {
-  // TODO: real embeddings. Stub: one tiny vector per paragraph.
-  return markdown
-    .split(/\n\n+/)
-    .filter(Boolean)
-    .map((p, i) => [i, p.length]);
-}
-
-export async function processMarkdown(
-  req: MarkdownRequest,
-): Promise<MarkdownResult> {
+export async function processMarkdown(req: MarkdownRequest): Promise<MarkdownResult> {
   const source = identifySource(req.url);
-  const markdown = await toMarkdown(req.url, source);
+  // Raw HTML can be supplied directly (offline / testing); otherwise fetch it.
+  const html = req.html ?? (await fetchSource(req.url));
+
+  const markdown = htmlToMarkdown(html);
+  const meta = extractMetadata(html);
+
   const result: MarkdownResult = {
     markdown,
-    metadata: { source, title: "[stub] Title" },
+    metadata: { source, url: req.url, ...meta },
   };
-  if (req.embeddings) result.embeddings = await embed(markdown);
+  if (req.embeddings) result.embeddings = embedParagraphs(markdown);
   return result;
 }

@@ -96,6 +96,8 @@ export interface DocumentResult {
 
 export interface MarkdownRequest {
   url: string;
+  /** Provide raw HTML to convert directly, skipping the fetch. */
+  html?: string;
   embeddings?: boolean;
 }
 
